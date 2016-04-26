@@ -16,7 +16,7 @@ Hier komen de JS files
 ### GIT COMMANDS:
     ### voegt alle wijzigingen toe voor de commit
     
-        git add -all 
+        git add --all 
          
     ### voor stadium om naar git toe te schrijven
     
