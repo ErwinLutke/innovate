@@ -4,14 +4,14 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>Chain</title>
 	<script src="/socket.io/socket.io.js"></script>
-	<script type="text/javascript" src="js/paper.js"></script>
-	<script type="text/javascript" src="js/keyDecode.js"></script>
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script type="text/javascript" src="/libraries/paper.js"></script>
+	<script type="text/javascript" src="/libraries/keyDecode.js"></script>
+  <script src="/libraries/jquery-2.2.3.min.js"></script>
 	<script type="text/paperscript" canvas="canvas">
 		// Adapted from the following Processing example:
 		// http://processing.org/learning/topics/follow3.html
 
-      var socket = io.connect('http://localhost');
+      var socket = io.connect(null, {secure: true}); ////'https://localhost:8080'
 
     var speed = 1;
 		var path = new Path();

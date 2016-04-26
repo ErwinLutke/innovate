@@ -3,7 +3,7 @@
   <head>
 	<script src="/socket.io/socket.io.js"></script>
     <script>
-      var socket = io.connect('http://localhost');
+      var socket = io.connect(null, {secure: true}); //'https://localhost:8080'
       var clientnum = -1;
       socket.on('clientnum', function (data) {
         console.log(data);

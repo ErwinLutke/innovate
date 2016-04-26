@@ -9,7 +9,7 @@ var clients = 0;
 
 var express = require('express');
 var app     = express();
-var server  = app.listen(80);
+var server  = app.listen(8080); //op c9 altijd poort 8080 gebruiken
 var io      = require('socket.io').listen(server);
 
 app.get('/', function (req, res) {
@@ -20,12 +20,16 @@ app.get('/client.html', function (req, res) {
   res.sendFile(__dirname + '/client.html');
 });
 
-app.get('/js/paper.js', function (req, res) {
-  res.sendFile(__dirname + '/js/paper.js');
+app.get('/libraries/paper.js', function (req, res) {
+  res.sendFile(__dirname + '/libraries/paper.js');
 });
 
-app.get('/js/keyDecode.js', function (req, res) {
-  res.sendFile(__dirname + '/js/keyDecode.js');
+app.get('/libraries/keyDecode.js', function (req, res) {
+  res.sendFile(__dirname + '/libraries/keyDecode.js');
+});
+
+app.get('/libraries/jquery-2.2.3.min.js', function (req, res) {
+  res.sendFile(__dirname + '/libraries/jquery-2.2.3.min.js');
 });
 
 io.sockets.on('connection', function (socket) {
