@@ -69,9 +69,12 @@ function onSocketConnectionDisplay(display) {
   	util.log("New display has connected: " + display.id);
   	// Listen for display disconnection
   	display.on("disconnect", onDisplayDisconnect);
-  	console.log(players[0]);
+  
+  //console.log(players[0]);
+  	
   	display.emit("players", JSON.stringify(players));
-  console.log(JSON.stringify(players));
+   
+   // util.log(JSON.stringify(players));
 }
 
 function onDisplayDisconnect() {

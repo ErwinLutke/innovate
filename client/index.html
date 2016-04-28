@@ -4,11 +4,31 @@
         <title>Client</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style type="text/css">
-            .move {
-                border: 1px solid black;
-                width:100px;
-                height:100px;
-                margin:5px;
+            .button {
+                background-color: blue;
+            }
+            #touch {
+                position:fixed;
+                padding:0;
+                margin:0;
+            
+                top:50;
+                left:0;
+            
+                width: 100%;
+                height: 100%;
+            }
+            #containerTop, #containerBottom {
+                display: flex;  
+                flex-direction: row;  
+                flex-wrap: nowrap;     
+                justify-content: flex-start;  
+            }
+            
+            #containerTop > div, #containerBottom > div {
+                width: 100px;
+                height: 100px;
+                margin: 5px;
             }
         </style>
     </head>
@@ -24,12 +44,24 @@
         </script>
         
         
-        <p id="demo"> use arrow keys for movement, or press the buttons (smartphone, touch only)</p>
+        <p id="demo"> 
+            use arrow keys for movement, or press the buttons (smartphone, touch only)
+        </p>
 
-        <div class="move" id="up"></div>
-        <div class="move" id="down"></div>
-        <div class="move" id="left"></div>
-        <div class="move" id="right"></div>
+        <div id="touch">
+            <div id="containerTop">
+                <div></div>
+                <div class="button" id="up"></div>
+                <div></div>
+            </div>
+            
+            <div id="containerBottom">
+                <div class="button" id="left"></div>
+                <div class="button" id="down"></div>
+                <div class="button" id="right"></div>
+            </div>
+        </div>
+        
         <script type="text/javascript">
             var intval;
             function mouseDown(arrow) {
@@ -37,12 +69,14 @@
                 if(arrow == 'down') keys.down = true;
                 if(arrow == 'left') keys.left = true;
                 if(arrow == 'right') keys.right = true;
-                intval = setInterval(function(){ 
-                    update();
-                }, 50);
+                if(keys.right || keys.left || keys.down || keys.up) {
+                    intval = setInterval(function(){ 
+                        update();
+                    }, 50);
+                }
             }
     
-            function mouseUp(arrow) {
+            function mouseUp() {
                 keys.up = false;
                 keys.down = false;
                 keys.left = false;
@@ -62,7 +96,7 @@
             }, false)
             
             down.addEventListener('touchstart', function (e) {
-                mouseDown('down');
+                mouseDown('down')
                 e.preventDefault();
             }, false)
             
@@ -75,11 +109,12 @@
                 mouseDown('right');
                 e.preventDefault();
             }, false)
-
+            
             document.body.addEventListener('touchend', function (e) {
                 mouseUp();
                 e.preventDefault();
-            }, false) 
+            }, false)
+            
         </script>
 
     </body>
