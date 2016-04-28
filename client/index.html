@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" ng-app>
+    <head>
+        <title>Client</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style type="text/css">
+            .move {
+                border: 1px solid black;
+                width:100px;
+                height:100px;
+                margin:5px;
+            }
+        </style>
+    </head>
+  
+    <body>
+  		  
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="js/Keys.js"></script>    
+		<script src="js/Player.js"></script>    
+		<script src="js/game.js"></script>    
+        <script type="text/javascript">
+            init();
+        </script>
+        
+        
+        <p id="demo"> use arrow keys for movement, or press the buttons (smartphone, touch only)</p>
+
+        <div class="move" id="up"></div>
+        <div class="move" id="down"></div>
+        <div class="move" id="left"></div>
+        <div class="move" id="right"></div>
+        <script type="text/javascript">
+            var intval;
+            function mouseDown(arrow) {
+                if(arrow == 'up') keys.up = true;
+                if(arrow == 'down') keys.down = true;
+                if(arrow == 'left') keys.left = true;
+                if(arrow == 'right') keys.right = true;
+                intval = setInterval(function(){ 
+                    update();
+                }, 50);
+            }
+    
+            function mouseUp(arrow) {
+                keys.up = false;
+                keys.down = false;
+                keys.left = false;
+                keys.right = false;
+                clearInterval(intval);
+                update();
+            }
+            
+            var up = document.getElementById('up');
+            var down = document.getElementById('down');
+            var left = document.getElementById('left');
+            var right = document.getElementById('right');
+            
+            up.addEventListener('touchstart', function (e) {
+                mouseDown('up');
+                e.preventDefault();
+            }, false)
+            
+            down.addEventListener('touchstart', function (e) {
+                mouseDown('down');
+                e.preventDefault();
+            }, false)
+            
+            left.addEventListener('touchstart', function (e) {
+                mouseDown('left');
+                e.preventDefault();
+            }, false)
+            
+            right.addEventListener('touchstart', function (e) {
+                mouseDown('right');
+                e.preventDefault();
+            }, false)
+
+            document.body.addEventListener('touchend', function (e) {
+                mouseUp();
+                e.preventDefault();
+            }, false) 
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en" ng-app>
+  <head>
+    <title>Client</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+        var socket = io.connect('/client');
+        
+        //checks if server says something
+        // socket.on('something', function (data) {
+        //   //code
+        // });
+        //handle input
+        
+    </script>
+  </head>
+  
+  <body>
+    	<button onclick="socket.emit('up')">UP</button>
+		  <button onclick="socket.emit('down')">DOWN</button>
+		  <button onclick="socket.emit('left')">LEFT</button>
+		  <button onclick="socket.emit('right')">RIGHT</button>
+  </body>
+</html>
