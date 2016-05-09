@@ -28,7 +28,7 @@ app.use('/display', express.static('display'));
 
 // request to the root of dir (homepage)
 app.get('/', function(request, response){
-    response.sendFile(__dirname + '/index.html');
+   response.sendFile(__dirname + '/index.html');
 });
 
 

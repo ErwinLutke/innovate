@@ -41,6 +41,8 @@ plaats voor wat niet een Node Package Module is
 
 ### node_modules
 Plaats voor alle node package module 
+Niet aanwezig?:    npm install
+dan staan ze er!
 
 ### oude snakes
 hier staan de vorige versies van de map innovate
