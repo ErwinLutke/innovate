@@ -61,4 +61,4 @@ Dit is een identifier van het project, geeft de dependencies weer
 Dit is een klasse die in game.js wordt gebruikt, het beschrijft de spelers
 
 ### README.md
-dit is de README die je nu leest
+dit is de README die je nu leest! :)
