@@ -12,8 +12,8 @@ function Food() {
 //give food a random position inside the grid
 function randPosition() {
     //random nummer tussen 1 en 10
-    var randX = Math.floor((Math.random() * 79) + 1);
-    var randY = Math.floor((Math.random() * 49) + 1);
+    var randX = Math.floor((Math.random() * (game.sizeX - 1)) + 1);//79
+    var randY = Math.floor((Math.random() * (game.sizeY - 1)) + 1);//49
     var position = {x : randX, y : randY};
     
     return position;

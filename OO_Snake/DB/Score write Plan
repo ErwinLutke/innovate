@@ -1,0 +1,54 @@
+Legenda/*
+/   ALLES WAT IN CAPS IS GESCREVEN ZIJN APARTE FUNCTIES
+/
+/   *Acties die door de client worden gedaan*
+/
+/   plain text zijn gewone code acties
+/
+/   "//comment" zijn comments (duhh) 
+*/
+
+
+
+TIJDENS OPSTARTEN VAN HET SPEL{
+    checken of er een Json file bestaat.{
+        json file bestaat{
+            checken wat de drie topscores zijn.
+            de drie topscores in de highscore array zetten
+        }
+    }
+    else{
+        json file bestaat niet{
+            maak een nieuwe score.json file
+            //checken voor de drie highscores is nog niet nodig omdat er op dit moment nog geen scores naar de json file zijn geschreven
+        }
+    }
+}
+
+wat gebeurt er tijdens het spel{
+    *client drukt op score uploaden*    //player wil meedoen met prijzen, dus drukt ja 
+    *client voert telefoonnummer in*
+    SCORE UPLOADEN{                     //Username, Score en TelefoonNummer zijn dan parameters voor deze functie
+        telefoonnummers worden in variables gezet.
+        is score één van de top drie{
+            //ja
+            UserName en Score wegschrijven naar highscore array. //deze highscores verdwijnen uit het geheugen van de raspberry daarom worden ze tijdens het opstarten opgehaald uit de json file en opnieuw in de array gezet
+            
+            WEGSCHRIJVEN NAAR JSON FILE(zie verderop in het plan);
+        }
+        else{
+            //nee
+            WEGSCHRIJVEN NAAR JSON FILE(zie verderop in het plan);
+        }
+    }
+    SCORE WEERGEVEN{
+        de eerste drie indexes van de highscore array worden eruit gehaald
+        de UserName en de Score worden in string variables gezet
+        de twee variables worden weergegeven op het scherm van alle clients
+    }
+}
+
+WEGSCHRIJVEN NAAR JSON FILE{
+    de drie variabelen worden naar de json file weggeschreven.
+    // volgorde UserName - Score - TelefoonNummer
+}
