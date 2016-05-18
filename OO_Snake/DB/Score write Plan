@@ -42,7 +42,7 @@ wat gebeurt er tijdens het spel{
         }
     }
     SCORE WEERGEVEN{
-        de eerste drie indexes van de highscore array worden eruit gehaald
+        de eerste 10 indexes van de highscore array worden eruit gehaald
         de UserName en de Score worden in string variables gezet
         de twee variables worden weergegeven op het scherm van alle clients
     }
@@ -52,3 +52,4 @@ WEGSCHRIJVEN NAAR JSON FILE{
     de drie variabelen worden naar de json file weggeschreven.
     // volgorde UserName - Score - TelefoonNummer
 }
+

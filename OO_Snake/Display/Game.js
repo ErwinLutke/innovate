@@ -8,12 +8,7 @@ function Game (wGridth, hGridth) {
     this.canvas = document.getElementById('canvas');
     this.ctx = this.canvas.getContext('2d');
     
-//    this.canvas.beginPath();
-//    this.canvas.lineWidth = "6";
-//    this.canvas.strokeStyle = "red";
-//    this.canvas.rect(5, 5, 290, 140);  
-//    this.canvas.stroke();
-
+    
     this.canvas.height = window.innerHeight;
     this.canvas.width = window.innerWidth;
     
@@ -29,16 +24,17 @@ function Game (wGridth, hGridth) {
     this.solidsColor = '#EFEFEF';
     
     
+    
         //teken een vierkant voor de border
 
 }
 
 //initialiseer de objecten
-var game = new Game();
-var renderer = new Renderer(game);
+// var game = new Game();
+// var renderer = new Renderer(game);
 
-//hou de snakeobjecten bij
-var snakes = [];
+// // hou de snakeobjecten bij
+// var snakes = [];
 
 //wanneer de server zegt dat iemand joint, wordt deze functie aangeroepen
 //functie wordt aangeroepen door com.js (socket.io) data param wordt aut. meegegeven
@@ -57,7 +53,6 @@ function addPlayer(data) {
 var totalCaughtFood = 0;
 var caughtFood = true;
 var food;
-
 function spawnFood() {
     if(caughtFood == true) {
         food = new Food();
@@ -66,17 +61,21 @@ function spawnFood() {
     }
 }
 
-function gameLoop() {
-    spawnFood();
-    collisionDetect();
+// function gameLoop() {
+//     spawnFood();
+//     collisionDetect();
     
-    //renderer.drawCells();
-    //renderer.drawCell(food.position, food.color);
-    renderer.drawSnakes(snakes);
-    setTimeout(function(){
-      gameLoop();
-    }, 1000 / 15);
-}
+//     //renderer.drawCells();
+//     //renderer.drawCell(food.position, food.color);
+//     renderer.drawSnakes(snakes);            
+    // comes in the function: update(); (not yet defined)
+            // for (var i = 0; i < snakes.length; i++) {
+            //     snakes[i].moveSnake();
+            // }
+//     setTimeout(function(){
+//       gameLoop();
+//     }, 1000 / 15);
+// }
 
 function collisionDetect() {
     //collision with Fruit
@@ -99,6 +98,5 @@ function snakeByClientId(clientSnakeId) {
 }
 
 //draws the entire grid
-renderer.drawCells();
-gameLoop()
-
+//renderer.drawCells();
+// gameLoop();

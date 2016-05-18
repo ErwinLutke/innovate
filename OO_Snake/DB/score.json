@@ -1,14 +1,30 @@
 {
-  "name": "snake",
-  "version": "0.0.0",
-  "description": "multiplayer...",
-  "main": "server.js",
-  "repository": "",
-  "author": "",
-  "dependencies": [
-    "async": "~0.2.8",
-    "express": "~4.13.4",
-    "socket.io": "~1.4.5"
-  ]
+  
+    "Player1": {
+      "Naam": "Jan",
+      "Score": "35",
+      "Nummer": "06239583"
+    },
+    "Player2": {
+      "Naam": "Kees",
+      "Score": "30",
+      "Nummer": "06239583"
+    },
+    "Player3": {
+      "Naam": "Piet",
+      "Score": "50",
+      "Nummer": "06239583"
+    },
+    "Player4": {
+      "Naam": "Henk",
+      "Score": "45",
+      "Nummer": ""
+    }
+    "Player5": {
+      "Naam": "Karel",
+      "Score": "70",
+      "Nummer": ""
+    }
+  
 }
 

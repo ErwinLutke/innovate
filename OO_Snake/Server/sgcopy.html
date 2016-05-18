@@ -20,13 +20,86 @@
 </head>
 <body>
     <canvas id="canvas"></canvas>
+    <script type="text/javascript" src="../Display/Game.js"></script>
     <script type="text/javascript" src="../Display/Renderer.js"></script>
     <script type="text/javascript" src="../Display/Food.js"></script>
     <script type="text/javascript" src="../Display/Snake.js"></script>
-    <script type="text/javascript" src="../Client/Debug.js"></script>
-    <!--<script type="text/javascript" src="../Display/Collision.js"></script>-->
-    <script type="text/javascript" src="../Display/Game.js"></script>
     <script type="text/javascript">
+
+
+    // window.addEventListener('resize', resizeCanvas, false);
+    
+     
+    
+    //   var canvas = document.getElementById('canvas');
+    //   var ctx = canvas.getContext('2d');
+    //  // resize the canvas to fill browser window dynamically
+        
+
+    //     var wGridth;
+    //     var hGridth;
+
+    //     function resizeCanvas() {
+    //             canvas.width = window.innerWidth;
+    //             canvas.height = window.innerHeight;
+    //             wGridth = canvas.width / 10 |0 ;
+    //             hGridth = canvas.height / 10 |0 ;
+    //             /**
+    //              * Your drawings need to be inside this function otherwise they will be reset when 
+    //              * you resize the browser window and the canvas goes will be cleared.
+    //              */
+    //       //    drawStuff(); 
+    //             console.log("width: " + canvas.width + " height: " + canvas.height +"\r\nGrid: " + wGridth, hGridth);
+    //     }
+
+    //     resizeCanvas();
+        
+ 
+
+    //     // x times y equals total cells
+        
+    //     // /2|0 weghalen voor 8x8 cellsize (en cellsize naar 8 zetten, of course)
+    //     var sizeX =  wGridth;//80 ///2 | 0
+    //     var sizeY =  hGridth;//50 ///2 | 0
+
+    //     //cell size:
+    //     var cellSize = 8;//16
+    //     var cellSpacing = 1;
+
+    //     //free space
+    //     var clearColor = "#4d4d4d"; //#838383
+
+    //     //blocks
+    //     var solidsColor = '#EFEFEF';
+
+    //     function drawCell(coordinates, color) { 
+    //         ctx.fillStyle = color;
+    //         if (cellSpacing) {
+    //             ctx.fillRect (
+    //                 coordinates.x * ( cellSize + cellSpacing ) + cellSpacing + (wGridth / 2 | 0),
+    //                 coordinates.y * ( cellSize + cellSpacing ) + cellSpacing + (hGridth / 2 | 0),
+    //                 cellSize,
+    //                 cellSize
+    //             );
+    //         } 
+    //         else { 
+    //             ctx.fillRect (
+    //                 coordinates.x * ( cellSize + 1) + 1 + (wGridth / 2 | 0),
+    //                 coordinates.y * ( cellSize + 1) + 1 + (hGridth / 2 | 0),
+    //                 cellSize + 1,
+    //                 cellSize + 1
+    //             );
+    //         }
+    //     }
+ 
+    //     function drawCells() {
+    //         for (var i = 0; i < sizeX; i++) {
+    //             for (var j = 0; j < sizeY; j++) {
+    //                 renderer.drawCell({x:i,y:j}, clearColor);
+    //             }
+    //         }
+    //     }
+    
     
         var game = new Game();
         var renderer = new Renderer(game);
@@ -42,29 +115,20 @@
         //snake2.spawnSnake(15, 15);
         
         snake.color = "#1009f2";
-        snake.spawnSnake(5,5);
+        snake.spawnSnake(5,0);
         
        // snakes.push(snake);
         
-        var speed = 20;
-        
         function gameLoop() {
             spawnFood();
+            collisionDetect();
             
             //renderer.drawCells();
             //renderer.drawCell(food.position, food.color);
             renderer.drawSnakes(snakes);
-            
-            // comes in the function: update(); (not yet defined)
-            for (var i = 0; i < snakes.length; i++) {
-                snakes[i].moveSnake();
-            }
-            
-            collisionDetect();
-            
-             setTimeout(function(){
-               gameLoop();
-             }, 1000 / speed); //20
+            setTimeout(function(){
+              gameLoop();
+            }, 1000 / 15);
         }
         
         //houdt bij hoeveel food gepakt en doet dit getal keer de "points" van food om een score mee te geven
@@ -85,60 +149,42 @@
         //var gridWidth = (cellSize + cellSpacing) * sizeX;
         //var gridHeight = (cellSize + cellSpacing) * sizeY;
         function collisionDetect() { //kleuren collision links rechts en boven van de slang, of de kleur niet
-            /*var front;
+            var front;
             var left;
             var right;
             snakes.forEach(function(snake) { //get the cells in front of and next to the heads of the snakes
                 switch(snake.direction) {
                         case 0: // Right
-                            front = { x: snake.segments[0].x + 2, y: snake.segments[0].y};
+                            front = { x: snake.segments[0].x + 1, y: snake.segments[0].y};
                             left =  { x: snake.segments[0].x,     y: snake.segments[0].y + 1 };
                             right = { x: snake.segments[0].x,     y: snake.segments[0].y - 1 };
                             break;
                         case 1: // Left
-                            front = { x: snake.segments[0].x - 2, y: snake.segments[0].y };
+                            front = { x: snake.segments[0].x - 1, y: snake.segments[0].y };
                             left =  { x: snake.segments[0].x,     y: snake.segments[0].y - 1 };
                             right = { x: snake.segments[0].x,     y: snake.segments[0].y + 1 };
                             break;
                         case 2: // Up
-                            front = { x: snake.segments[0].x,     y: snake.segments[0].y - 2 };
+                            front = { x: snake.segments[0].x,     y: snake.segments[0].y + 1 };
                             left = snake.segments[0].x - 1;
                             right = snake.segments[0].x + 1;
                             break;
                         case 3: // Down
-                            front = { x: snake.segments[0].x,     y: snake.segments[0].y + 2 };
+                            front = { x: snake.segments[0].x,     y: snake.segments[0].y - 1 };
                             left = snake.segments[0].x + 1;
                             right = snake.segments[0].y - 1;
                             break;
-                            
-                        default: // toegevoegd anders heb ik error met nieuwe implementaties
-                            front = { x: snake.segments[0].x + 2,     y: snake.segments[0].y };
-                            left = snake.segments[0].x + 1;
-                            right = snake.segments[0].y - 1;
                     }
                     
                 //get color data in front of the snake
                 var cs = game.cellSize;
                 var csp = game.cellSpacing;
-                
-                var xData = front.x * (cs + csp) + csp;
-                var yData = front.y * (cs + csp) + csp;*/
-                /*var wg = (game.wGridth / 2 | 0);
-                var hg = (game.hGridth / 2 | 0);*/
-               /* var colorData = renderer.ctx.getImageData(xData, yData, cs, cs).data; // * cs + (cs * csp) + wg
+                var colorData = game.ctx.getImageData((front.x * cs + (cs * csp)), (front.y * cs + (cs * csp)), cs, cs).data;
                 var RGB = colorData[0] + " " + colorData[1] + " " + colorData[2];
-                //colorData[0] = 255;
-                //renderer.ctx.putImageData(colorData, (front.x * (cs + csp) + 1), (front.y * (cs + csp)));
-                console.log("RGB: " + RGB + " | xData: " + xData + " yData: " + yData);
-                
-                //#4D4D4D = 77 77 77
-            })*/
+                console.log("RGB: " + RGB + "front.x: " + front.x);
+            })
             
-            //init collision objects
-            /*var wallLeft = new Collision(0, 0, 10, 1000);
-            if(wallLeft.CollisionWith(snake)) {
-                console.log("collision");
-            }*/
+            
             
             //----------------------------------------------------------------------------------
             //collision with your own snake
@@ -149,48 +195,17 @@
                 }
             }
             
-            //collision with canvas wall right
-            if(snake.segments[0].x == game.sizeX) {
-                if(debugMode === true) { //kan later worden vervangen door "openWall === true"?
-                    snake.segments[0].x = 0;
-                } else {
-                    alert("Game Over | Points:" + loopTime);
-                    throw new Error("Game Over");
-                }
-            }
-            //collision with canvas wall left
-            if(snake.segments[0].x <= -1) {
-                if(debugMode === true) { //kan later worden vervangen door "openWall === true"?
-                    snake.segments[0].x = game.sizeX - 1;
-                } else {
-                    alert("Game Over | Points:" + loopTime);
-                    throw new Error("Game Over");
-                }
-            }
-            //collision with canvas wall right
-            if(snake.segments[0].y == game.sizeY) {
-                if(debugMode === true) { //kan later worden vervangen door "openWall === true"?
-                    snake.segments[0].y = 0;
-                } else {
-                    alert("Game Over | Points:" + loopTime);
-                    throw new Error("Game Over");
-                }
-            }
-            
-            if(snake.segments[0].y <= -1) {
-                if(debugMode === true) { //kan later worden vervangen door "openWall === true"?
-                    snake.segments[0].y = game.sizeY - 1;
-                } else {
-                    alert("Game Over | Points:" + loopTime);
-                    throw new Error("Game Over");
-                }
+            //collision with canvas wall
+            if(snake.segments[0].x == game.sizeX || snake.segments[0].x <= -1 || snake.segments[0].y == game.sizeY || snake.segments[0].y <= -1) {
+                alert("Game Over | Points:" + loopTime);
+                throw new Error("Game Over");
             }
             
             //collision with Fruit
             if(snake.segments[0].x == food.position.x && snake.segments[0].y == food.position.y) {
                 totalCaughtFood++;
                 caughtFood = true;
-                snake.addSegment(4);//4
+                snake.addSegment(4);
             }
             
             loopTime++;
@@ -231,28 +246,20 @@
     window.addEventListener('keydown', function(e) {
         if (e.keyCode === 38 && snake.direction !== 3) {
             snake.direction = 2; // Up
-            snake.moves.push(2);
         } else if (e.keyCode === 40 && snake.direction !== 2) {
             snake.direction = 3; // Down
-            snake.moves.push(3);
         } else if (e.keyCode === 37 && snake.direction !== 0) {
             snake.direction = 1; // Left
-            snake.moves.push(1);
         } else if (e.keyCode === 39 && snake.direction !== 1) {
             snake.direction = 0; // Right
-            snake.moves.push(0);
         } 
         
-        //enter debug mode: shift
-        if (e.keyCode === 16) {
-            EnableDebug();
-        }
     });
     
     //draws the entire grid
     renderer.drawCells();
     gameLoop();
-
+ 
     </script>
 </body>
 </html>
