@@ -3,16 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <title>Snake</title>
+        <style type="text/css">
+            .button {
+                background-color: blue;
+            }
+            #touch {
+                position:fixed;
+                padding:0;
+                margin:0;
+            
+                top:50;
+                left:0;
+            
+                width: 100%;
+                height: 100%;
+            }
+            #containerTop, #containerBottom {
+                display: flex;  
+                flex-direction: row;  
+                flex-wrap: nowrap;     
+                justify-content: flex-start;  
+            }
+            
+            #containerTop > div, #containerBottom > div {
+                width: 200px;
+                height: 200px;
+                margin: 5px;
+            }
+        </style>
 </head>
 <body>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="comClient.js"></script>
     <script src="Controller.js"></script>
     
+     <p id="demo"> 
+        use arrow keys for movement, or press the buttons (smartphone, touch only)
+    </p>
+
+    <div id="touch">
+        <div id="containerTop">
+            <div></div>
+            <div class="button" id="up"></div>
+            <div></div>
+        </div>
+        
+        <div id="containerBottom">
+            <div class="button" id="left"></div>
+            <div class="button" id="down"></div>
+            <div class="button" id="right"></div>
+        </div>
+    </div>
+    
     <script type="text/javascript">
         function Snake() {
             this.direction = 0;
         }
+        
         var snake = new Snake();
         
         var controller = new Controller(snake);
@@ -36,6 +83,44 @@
                 controller.allowMove = false;
             }
         });
+        
+        function mouseDown(arrow) {
+            if(arrow == 'up'    && snake.direction !== 3) controller.command("up");
+            if(arrow == 'down'  && snake.direction !== 2) controller.command("down");
+            if(arrow == 'left'  && snake.direction !== 0) controller.command("left");
+            if(arrow == 'right' && snake.direction !== 1) controller.command("right");
+            if (controller.allowMove) {
+                socket.emit("movePlayer", snake.direction);
+                controller.allowMove = false;
+            }
+        }
+
+        //touch
+            var up = document.getElementById('up');
+            var down = document.getElementById('down');
+            var left = document.getElementById('left');
+            var right = document.getElementById('right');
+            
+            up.addEventListener('touchstart', function (e) {
+                mouseDown('up');
+                e.preventDefault();
+            }, false);
+            
+            down.addEventListener('touchstart', function (e) {
+                mouseDown('down');
+                e.preventDefault();
+            }, false);
+            
+            left.addEventListener('touchstart', function (e) {
+                mouseDown('left');
+                e.preventDefault();
+            }, false);
+            
+            right.addEventListener('touchstart', function (e) {
+                mouseDown('right');
+                e.preventDefault();
+            }, false);
+            
         
     </script>
 </body>
