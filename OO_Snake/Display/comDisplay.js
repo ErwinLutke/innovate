@@ -1,6 +1,8 @@
 
 var socket;
 
+
+    
 function init(){
 	socket = io.connect('/display');
 	setEventHandlers();
@@ -27,8 +29,8 @@ function onSocketConnected() {
 	console.log("connected to the server");
 }
 
-function onSocketDisconnect() {
-	console.log("Disconnected from the server");
+function onSocketDisconnect(msg) {
+	console.log("Disconnected from the server: " + msg);
 }
 
 function onNewPlayer(player) {
@@ -37,14 +39,17 @@ function onNewPlayer(player) {
 
 function onMovePlayerSnake(client) {
 	var snakePos = snakeByClientId(client.id);
-	console.log(snakePos);
+	snakes[snakePos].moves.push(client.direction);
 	snakes[snakePos].direction = client.direction;
+	console.log("moving snake: " + snakePos);
 }
 
 function onRemovePlayer(player) {
 	var pos = snakeByClientId(player.id);
-	snakes.splice(pos, 1);
-//	socket.emit("spotOpen", player.id);
+	if(pos !== false) {
+		snakesToRemove.push(pos);
+	}
+	// snakes.splice(pos, 1);
 }
 
 init();

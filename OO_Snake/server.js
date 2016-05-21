@@ -37,6 +37,7 @@ app.get('/', function(request, response){
 var players;      // array of connected players
 var waitingLine;  // stores players if no spot is free
 var maxPlayers;   // int - players allowed to play at the same time
+
   
 /**************************************************
 ** GAME INITIALISATION
@@ -47,8 +48,11 @@ function init() {
     
     players = [];                   // create empty array for storing the players
     waitingLine = [];               // create empty array for storing the waiting players
-    maxPlayers = 4;                 // number of allowed players
-
+    maxPlayers = 2;                // number of allowed players
+    
+    nspDisplay.max_connections = 1;         // max number of display allowed
+    nspDisplay.current_connections = 0;     // current number of displays
+    
     // setup the event handling
     setEventHandlersDisplay();
     setEventHandlersClient();
@@ -59,33 +63,50 @@ function init() {
 ** GAME EVENT HANDLERS - DISPLAY
 **************************************************/
 var setEventHandlersDisplay = function() {
-    nspDisplay.on("connection", onSocketConnectionDisplay);
+        nspDisplay.on("connection", onSocketConnectionDisplay);
 };
 
 function onSocketConnectionDisplay(display) {
   	util.log("New display has connected: " + display.id);
   	
-  	display.on("disconnect", onDisplayDisconnect);  	// Listen for display disconnection
-  	display.on("spotOpen", onSpotOpen);  	            // Listen if Display has open spot because a player died or left
+  	// checks if max number displays is reached and disconnects client if its true
+    if (nspDisplay.current_connections >= nspDisplay.max_connections) {
+        display.emit('disconnect', 'Game in progress, cant display another');
+        display.disconnect();
+    } 
+    else {
+        nspDisplay.current_connections++;
+        players = [];
+        waitingLine = [];
+      	display.on("spotOpen", onSpotOpen);  	            // Listen if Display has open spot because a player died
+        display.on("disconnect", onDisplayDisconnect);  	// Listen for display disconnection
+    }
 }
 
 function onDisplayDisconnect() {
   	util.log("Display has disconnected: " + this.id);
+  	nspDisplay.current_connections--;
 }
 
 function onSpotOpen(removedPlayerId) {
-    var pos = playerById(removedPlayerId);
-    players.splice(pos, 1);
+    var player = playerById(removedPlayerId);
+    if(player.play === 1) {
+        players.splice(player.pos, 1);
+        io.nsps['/client'].sockets[removedPlayerId].emit("replay");
+    }
     
-    var newPlayer = waitingLine.shift();
-    console.log(newPlayer);
-    players.push(newPlayer);
-    
-    nspDisplay.emit("newPlayer", newPlayer);
-    
-    
-  //  io.nsps['/client'].sockets[newPlayer.id].emit("playGame");
-    io.sockets.connected[newPlayer.id].emit("playGame");
+    if (waitingLine.length > 0) {
+        var newPlayer = waitingLine.shift();
+        players.push(newPlayer);
+        nspDisplay.emit("newPlayer", newPlayer);
+        
+        io.nsps['/client'].sockets[newPlayer.id].emit("playGame");
+        if (waitingLine.length > 0) {
+            for(var i = 0; i < waitingLine.length; i++) {
+                io.nsps['/client'].sockets[waitingLine[i].id].emit("waitingLine" , i+1);
+            }
+        }
+    }
 }
 
 
@@ -102,7 +123,7 @@ function onSocketConnectionClient(client) {
         
     // Create a new player
     var newPlayer = {id: client.id};
-    // Place player in game or waitingline 
+    // Place player in game or waitingLine 
     if(players.length < maxPlayers) {
         players.push(newPlayer);                    // Add new player to the players array
         nspDisplay.emit("newPlayer", newPlayer);    // Broadcast new player to gameDisplay
@@ -138,34 +159,36 @@ function onClientDisconnect() {
   	}
   
   	// Remove player from arrays by index position - QUICKFIX
-  	try {
-  	    players.splice(players.indexOf(removePlayer), 1);
-  	    waitingLine.splice(waitingLine.indexOf(removePlayer), 1);
-  	} catch (e) {
-  	    console.log(e);
-  	}
+      if(removePlayer.play === 1) {
+          players.splice(players.indexOf(removePlayer.pos), 1);
+      }
+      else {
+          waitingLine.splice(waitingLine.indexOf(removePlayer.pos), 1);
+      }
   	
   
   	// Broadcast removed player to connected socket clients
   	// only if in player array, not finished
-  	nspDisplay.emit("removePlayer", {id: this.id});
+    nspDisplay.emit("removePlayer", {id: this.id});
 }
 
 // Player has moved
 function onMovePlayer(dir) {
 	// Find player in array
 
-    util.log("player movement " + dir );
+   // util.log("player movement " + dir );
 	var movePlayer = playerById(this.id);
-
+	
 	// Player not found
 	if (movePlayer === false) {
 		util.log("Player not found: "+ this.id);
 		return;
 	}
 	
-	// Broadcast updated position to connected socket clients
-	nspDisplay.emit("movePlayerSnake", {id: players[movePlayer].id, direction: dir});
+	if(movePlayer.play === 1) {
+    	// Broadcast updated position to connected socket clients
+    	nspDisplay.emit("movePlayerSnake", {id: players[movePlayer.pos].id, direction: dir});
+	}
 }
 
 
@@ -176,13 +199,13 @@ function onMovePlayer(dir) {
 function playerById(id) {
   	for (var i = 0; i < players.length; i++) {
   		  if (players[i].id == id) {
-  			    return i;
+  			    return {pos: i, play: 1};
   		  }
   	}
   	
   	for (var i = 0; i < waitingLine.length; i++) {
   		  if (waitingLine[i].id == id) {
-  			    return i;
+  			    return {pos: i, play: 0};
   		  }
   	}
   	return false;
