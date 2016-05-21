@@ -4,22 +4,36 @@ var game = new Game();
 var renderer = new Renderer(game);
 
 var snakesToRemove = [];
+var tempSnakes = [];
 // // hou de snakeobjecten bij
 var snakes = [];
 var debugMode = true;
 
 // @snakeToRemove = array
 function removeSnake(snakeToRemove) {
-    for (var i = 0; i < snakeToRemove.length; i++) {
+    var srl = snakeToRemove.length;
+    for (var i = 0; i < srl; i++) {
         var pos = snakeToRemove.shift();
-        var snake = snakes[pos];
-        console.log("removing snake: " + pos);
-        for (var i = 0; i < snake.segments.length; i++) {
-            renderer.drawCell(snake.segments[i], game.clearColor);
-        }
-        var id = snake.clientID;
+        var rsnake = snakes[pos];
+        tempSnakes.push(rsnake);
+        // console.log("removing snake: " + pos);
+        var id = rsnake.clientID;
+        // console.log("remoo " + id);
         snakes.splice(pos, 1);
 	    socket.emit("spotOpen", id);
+    }
+    
+    if(tempSnakes.length > 0) {
+        for (var i = tempSnakes.length -1; i >= 0; i--) {
+            console.log("check 1");
+            var tsnake = tempSnakes[i];
+            if (tsnake.segments.length -1 > 0) {
+                renderer.drawCell(tsnake.segments[tsnake.segments.length -1], game.clearColor);
+                tsnake.segments.pop();
+            } else {
+                tempSnakes.splice(i, 1);
+            }
+        }
     }
 }
 

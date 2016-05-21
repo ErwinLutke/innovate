@@ -90,6 +90,11 @@ function onDisplayDisconnect() {
 
 function onSpotOpen(removedPlayerId) {
     var player = playerById(removedPlayerId);
+    
+    if (player === false) {
+        util.log("onSpotOpen: player not found");
+       // return
+    }
     if(player.play === 1) {
         players.splice(player.pos, 1);
         io.nsps['/client'].sockets[removedPlayerId].emit("replay");
@@ -139,7 +144,7 @@ function onSocketConnectionClient(client) {
         client.emit("waitingLine", waitingPos);
     }
     
-    util.log("playerArray check:  -- " + players[0].id);
+    // util.log("playerArray check:  -- " + players[0].id);
     
   	client.on("disconnect", onClientDisconnect);    // Listen for client disconnected
     client.on("movePlayer", onMovePlayer);	        // Listen for move player message
@@ -154,22 +159,22 @@ function onClientDisconnect() {
   	
   	// Player not found
   	if (removePlayer === false) {
-    		util.log("Player not found: " + this.id);
-    		return;
+        util.log("onClientDisconnect: Player not found: " + this.id);
+        return;
   	}
   
   	// Remove player from arrays by index position - QUICKFIX
-      if(removePlayer.play === 1) {
-          players.splice(players.indexOf(removePlayer.pos), 1);
-      }
-      else {
-          waitingLine.splice(waitingLine.indexOf(removePlayer.pos), 1);
-      }
+    if(removePlayer.play === 1) {
+        players.splice(removePlayer.pos, 1);
+        nspDisplay.emit("removePlayer", {id: this.id});
+    }
+    else {
+        waitingLine.splice(removePlayer.pos, 1);
+    }
   	
   
   	// Broadcast removed player to connected socket clients
   	// only if in player array, not finished
-    nspDisplay.emit("removePlayer", {id: this.id});
 }
 
 // Player has moved
@@ -181,7 +186,7 @@ function onMovePlayer(dir) {
 	
 	// Player not found
 	if (movePlayer === false) {
-		util.log("Player not found: "+ this.id);
+		util.log("onMovePlayer: Player not found: "+ this.id);
 		return;
 	}
 	
