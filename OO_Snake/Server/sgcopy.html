@@ -260,6 +260,177 @@
     renderer.drawCells();
     gameLoop();
  
+ 
+ 
+ 
+             // for(var i = 0; i < snakes.length; i++) {
+            //     // Get all snakes in the game once more
+            //     for(var j = 0; j < snakes.length; j++){
+            //         // Check first snake (i) against all the other snakes (j)
+            //         for(var s = 0; s < snakes[j].segments.length; s++) {
+            //             if(snakes[i] === snakes[j]) {
+            //                 if(s !== 0) {
+            //                     // check if head of snakes collides with another head
+            //                     if(snakes[i].segments[0].x == snakes[j].segments[s].x && snakes[i].segments[0].y == snakes[j].segments[s].y ) {
+            //                         console.log("erwin colliion headbump: TRUE");
+            //                     }
+            //                 } 
+            //             }
+            //             else {
+            //                 // Check if head of snakes colides against any other segment (including its own)
+            //                 if(snakes[i].segments[0].x === snakes[j].segments[s].x && snakes[i].segmnts[0].y === snakes[j].segments[s].y ) {
+            //                     console.log("erwin colliion: TRUE");
+            //                 } 
+            //             }
+                        
+            //         }
+            
+            
+            //kleuren collision links rechts en boven van de slang, of de kleur niet
+            /*var front;
+            var left;
+            var right;
+            snakes.forEach(function(snake) { //get the cells in front of and next to the heads of the snakes
+                switch(snake.direction) {
+                        case 0: // Right
+                            front = { x: snake.segments[0].x + 2, y: snake.segments[0].y};
+                            left =  { x: snake.segments[0].x,     y: snake.segments[0].y + 1 };
+                            right = { x: snake.segments[0].x,     y: snake.segments[0].y - 1 };
+                            break;
+                        case 1: // Left
+                            front = { x: snake.segments[0].x - 2, y: snake.segments[0].y };
+                            left =  { x: snake.segments[0].x,     y: snake.segments[0].y - 1 };
+                            right = { x: snake.segments[0].x,     y: snake.segments[0].y + 1 };
+                            break;
+                        case 2: // Up
+                            front = { x: snake.segments[0].x,     y: snake.segments[0].y - 2 };
+                            left = snake.segments[0].x - 1;
+                            right = snake.segments[0].x + 1;
+                            break;
+                        case 3: // Down
+                            front = { x: snake.segments[0].x,     y: snake.segments[0].y + 2 };
+                            left = snake.segments[0].x + 1;
+                            right = snake.segments[0].y - 1;
+                            break;
+                            
+                        default: // toegevoegd anders heb ik error met nieuwe implementaties
+                            front = { x: snake.segments[0].x + 2,     y: snake.segments[0].y };
+                            left = snake.segments[0].x + 1;
+                            right = snake.segments[0].y - 1;
+                    }
+                    
+                //get color data in front of the snake
+                var cs = game.cellSize;
+                var csp = game.cellSpacing;
+                
+                var xData = front.x * (cs + csp) + csp;
+                var yData = front.y * (cs + csp) + csp;*/
+                /*var wg = (game.wGridth / 2 | 0);
+                var hg = (game.hGridth / 2 | 0);*/
+               /* var colorData = renderer.ctx.getImageData(xData, yData, cs, cs).data; // * cs + (cs * csp) + wg
+                var RGB = colorData[0] + " " + colorData[1] + " " + colorData[2];
+                //colorData[0] = 255;
+                //renderer.ctx.putImageData(colorData, (front.x * (cs + csp) + 1), (front.y * (cs + csp)));
+                console.log("RGB: " + RGB + " | xData: " + xData + " yData: " + yData);
+                
+                //#4D4D4D = 77 77 77
+            })*/
+            
+            
+            
+            
+            
+        
+        // houdt bij hoeveel food gepakt en doet dit getal keer de "points" van food om een score mee te geven
+        // totalCaughtFood wordt geincrement in de functie collisionDetect
+        /*var totalCaughtFood = 0;
+        var caughtFood = true;
+        var food;*/
+        /*function spawnFood() {
+            if(caughtFood == true) {
+                food = new Food();
+                renderer.drawCell(food.position, food.color);
+                caughtFood = false;
+            }
+        }*/
+        
+        //check for collision
+        // var loopTime = 0;
+        //var gridWidth = (cellSize + cellSpacing) * sizeX;
+        //var gridHeight = (cellSize + cellSpacing) * sizeY;
+        /*function collisionDetect() { 
+            // Get all snakes that are in the game
+            for(var i = 0; i < snakes.length; i++) {
+                // Save the snake that we are going to check
+                var snake = snakes[i];
+                // Get all snakes in the game once more
+                for(var j = 0; j < snakes.length; j++) {
+                    // Check saved snake against all the snakes
+                    for(var s = 1; s < snakes[j].segments.length; s++) {
+                        // Check if head of snakes colides against any other seg
+                        if(snake.segments[0].x == snakes[j].segments[s].x && snake.segments[0].y == snakes[j].segments[s].y ) {
+                            console.log("erwin colliion: TRUE");
+                        } 
+                    }
+                }
+            }
+
+            //init collision objects
+            var wallLeft = new Collision(0, 0, 10, 1000);
+            if(wallLeft.CollisionWith(snake)) {
+                console.log("collision");
+            }
+            
+            //----------------------------------------------------------------------------------
+            //collision with your own snake
+            for(var i = 1; i <= snake.length; i++) {
+                if(snake.segments[0].x == snake.segments[i].x && snake.segments[0].y == snake.segments[i].y) {
+               //     alert("Game Over | Points:" + loopTime);
+                 //   throw new Error("Game Over");
+                }
+            }
+            
+            //collision with canvas wall right
+            if(snake.segments[0].x == game.sizeX) {
+                if(debugMode === true) { //kan later worden vervangen door "openWall === true"?
+                    snake.segments[0].x = 0;
+                } else {
+                    alert("Game Over | Points:" + loopTime);
+                    throw new Error("Game Over");
+                }
+            }
+            //collision with canvas wall left
+            if(snake.segments[0].x <= -1) {
+                if(debugMode === true) { //kan later worden vervangen door "openWall === true"?
+                    snake.segments[0].x = game.sizeX - 1;
+                } else {
+                    alert("Game Over | Points:" + loopTime);
+                    throw new Error("Game Over");
+                }
+            }
+            //collision with canvas wall right
+            if(snake.segments[0].y == game.sizeY) {
+                if(debugMode === true) { //kan later worden vervangen door "openWall === true"?
+                    snake.segments[0].y = 0;
+                } else {
+                    alert("Game Over | Points:" + loopTime);
+                    throw new Error("Game Over");
+                }
+            }
+            
+            if(snake.segments[0].y <= -1) {
+                if(debugMode === true) { //kan later worden vervangen door "openWall === true"?
+                    snake.segments[0].y = game.sizeY - 1;
+                } else {
+                    alert("Game Over | Points:" + loopTime);
+                    throw new Error("Game Over");
+                }
+            }
+            
+            loopTime++;
+        }*/
+
     </script>
 </body>
 </html>
+

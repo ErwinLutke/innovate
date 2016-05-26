@@ -4,8 +4,8 @@
 var util = require("util"),  
     express = require('express'),
     http = require('http'),
-    socketio = require('socket.io');
-
+    socketio = require('socket.io'),
+    scoresDB = require('./DB/Scores.js');
         
 /**************************************************
 ** SERVER SERTUP
@@ -13,7 +13,8 @@ var util = require("util"),
 var app = express(),                  // create express instance
     server = http.createServer(app),  // create the http server from express
     io = socketio(server),            // setup socket io to listen to the server
-    port = process.env.PORT,          // stores port to listen on
+    port = 8081;
+    // process.env.PORT,          // stores port to listen on
     ip = process.env.IP;              // stores the ip
     
 // setup namespace for different sockets
@@ -31,24 +32,28 @@ app.get('/', function(request, response){
 });
 
 
+
 /**************************************************
 ** GAME VARIABLES
 **************************************************/
 var players;      // array of connected players
 var waitingLine;  // stores players if no spot is free
 var maxPlayers;   // int - players allowed to play at the same time
-
+var topScores;    // stores scores of top Players
   
 /**************************************************
 ** GAME INITIALISATION
 **************************************************/
-function init() {
+function init() { 
+    scoresDB.ReadJson('./DB/score.json');   // loads the scores
+    topScores = scoresDB.getScores();    // get scores and names of top 3 players
+    
     server.listen(port, ip);        // start up the game server
     util.log('Started game server: listening on port:' + port + ' on ip: ' + ip );
     
     players = [];                   // create empty array for storing the players
     waitingLine = [];               // create empty array for storing the waiting players
-    maxPlayers = 2;                // number of allowed players
+    maxPlayers = 5 ;                // number of allowed players
     
     nspDisplay.max_connections = 1;         // max number of display allowed
     nspDisplay.current_connections = 0;     // current number of displays
@@ -78,6 +83,8 @@ function onSocketConnectionDisplay(display) {
         nspDisplay.current_connections++;
         players = [];
         waitingLine = [];
+        display.on("recieveScore", onRecieveScore);
+        // display.on("storeScore");
       	display.on("spotOpen", onSpotOpen);  	            // Listen if Display has open spot because a player died
         display.on("disconnect", onDisplayDisconnect);  	// Listen for display disconnection
     }
@@ -88,6 +95,17 @@ function onDisplayDisconnect() {
   	nspDisplay.current_connections--;
 }
 
+function onRecieveScore(data) {
+    
+    var player = playerById(data.id);
+    var playerScore = data.points;
+    
+    players[player.pos].score = playerScore;
+   
+    io.nsps['/client'].sockets[data.id].emit("sendScore", playerScore);
+  	util.log("player score: " + playerScore);
+}
+
 function onSpotOpen(removedPlayerId) {
     var player = playerById(removedPlayerId);
     
@@ -96,8 +114,13 @@ function onSpotOpen(removedPlayerId) {
        // return
     }
     if(player.play === 1) {
+        // if(scoresDB.isInTop3(players[player])) {
+        //     scoresDB.updateScore(players[player]);
+        //     topScores = scoresDB.getScores();
+        // }
+
         players.splice(player.pos, 1);
-        io.nsps['/client'].sockets[removedPlayerId].emit("replay");
+        io.nsps['/client'].sockets[removedPlayerId].emit("replay", topScores);
     }
     
     if (waitingLine.length > 0) {
@@ -124,30 +147,34 @@ var setEventHandlersClient = function() {
 
 
 function onSocketConnectionClient(client) {
-  	util.log("New player has connected: " + client.id);
-        
+  	util.log("New Client has connected: " + client.id);
+    // util.log("playerArray check:  -- " + players[0].id);
+    client.on("setPlayerName", onSetPlayerName);
+  	client.on("disconnect", onClientDisconnect);    // Listen for client disconnected
+    client.on("movePlayer", onMovePlayer);	        // Listen for move player message
+}
+
+function onSetPlayerName(playerName) {
+    util.log("new player: " + playerName);
+    
     // Create a new player
-    var newPlayer = {id: client.id};
+    var newPlayer = {id: this.id, name: playerName, score: 0};
+    util.log(newPlayer.name);
     // Place player in game or waitingLine 
     if(players.length < maxPlayers) {
         players.push(newPlayer);                    // Add new player to the players array
         nspDisplay.emit("newPlayer", newPlayer);    // Broadcast new player to gameDisplay
-        client.emit("playGame");
+        this.emit("playGame");
         
     }
     else {
         waitingLine.push(newPlayer);                // Add new player to the waiting array
         var waitingPos = waitingLine.length;        // get the waiting position
-        
+        util.log("in wait");
         // send waiting position to this player
         //nspClient.sockets.connected[newPlayer.id]
-        client.emit("waitingLine", waitingPos);
+        this.emit("waitingLine", waitingPos);
     }
-    
-    // util.log("playerArray check:  -- " + players[0].id);
-    
-  	client.on("disconnect", onClientDisconnect);    // Listen for client disconnected
-    client.on("movePlayer", onMovePlayer);	        // Listen for move player message
 }
 
 // Socket client has disconnected
@@ -181,7 +208,7 @@ function onClientDisconnect() {
 function onMovePlayer(dir) {
 	// Find player in array
 
-   // util.log("player movement " + dir );
+    util.log("player movement " + dir );
 	var movePlayer = playerById(this.id);
 	
 	// Player not found

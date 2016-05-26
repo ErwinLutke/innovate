@@ -1,13 +1,17 @@
 
 var socket;
 
-
-    
+/**************************************************
+** COMMUNICATION SETUP
+**************************************************/
 function init(){
 	socket = io.connect('/display');
 	setEventHandlers();
 }
 
+/**************************************************
+** SETUP GAME EVENT HANDLERS
+**************************************************/
 var setEventHandlers = function() {
 	// Socket connection successful
 	socket.on("connect", onSocketConnected);
@@ -25,11 +29,17 @@ var setEventHandlers = function() {
 	socket.on("removePlayer", onRemovePlayer);
 };
 
+
+
+/**************************************************
+** EVENT HANDLERS - LISTENERS
+**************************************************/
 function onSocketConnected() {
 	console.log("connected to the server");
 }
 
 function onSocketDisconnect(msg) {
+	// alert(msg);
 	console.log("Disconnected from the server: " + msg);
 }
 
@@ -47,9 +57,27 @@ function onMovePlayerSnake(client) {
 function onRemovePlayer(player) {
 	var pos = snakeByClientId(player.id);
 	if(pos !== false) {
-		snakesToRemove.push(pos);
+		snakesToRemove.push(snakes[pos]);
 	}
 	// snakes.splice(pos, 1);
 }
 
+
+/**************************************************
+** EVENT HANDLERS - SENDERS
+**************************************************/
+function sendScore(snake){
+	    try {
+    		socket.emit("recieveScore", {id: snake.clientID, points: snake.length});
+    		console.log("sending points to server");
+        }
+        catch(e){
+            console.log("SP? - cant send scores");
+        }
+}
+
+
+/**************************************************
+** START COMMUNICATION
+**************************************************/
 init();

@@ -2,7 +2,7 @@
 
 function Controller(snake) {
     this.allowMove = false;
-    this.lastCommand = "right"; //je spawnt met direction naar rechts
+    this.lastCommand = ""; //je spawnt met direction naar rechts
     this.command = function(command) {
         // if(this.player == null) {
         //     alert("Please create a Controller before you give a command");

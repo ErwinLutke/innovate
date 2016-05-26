@@ -6,253 +6,226 @@
     <style type="text/css">
         * { margin:0; padding:0; } /* to remove the top and left whitespace */
 
-        html, body { width:100%; height:100%; } /* just to be sure these are full screen*/
-
-        canvas { display:block; } /* To remove the scrollbars */
-
-        /* to show the canvas bounds */
-        canvas {
-            background-color: #262626;
+        html, body { 
+            width:100%; 
+            height:100%; 
+            background-color: #000000;
+            text-align:center;
+        } /* just to be sure these are full screen*/
+            .button {
+                background-color: blue;
+            }
+            .buttonleft {
+                background-color: green;
+            }.buttonright {
+                background-color: purple;
+            } 
+            .buttondown {
+                background-color: orange;
+            }
+            #goFS {
+                position: absolute;
+                width:50px;
+            }
             
+            #touch {
+                /*position:relative;*/
+                /*padding:0;*/
+                /*margin:auto auto;*/
+            
+                /*top:50;*/
+                /*left:0;*/
+            
+                width:100%;
+                height:100%;
+                top:0;
+                position:absolute;
+            }
+            #containerTop, #containerBottom {
+                display: flex;  
+                flex-direction: row;  
+                flex-wrap: nowrap;     
+                justify-content: flex-start;  
+                
+            }
+            
+            #containerBottom > div {
+                width: 100%;
+                height: 50vh;
+                opacity: 0;     
+            } 
+            #containerTop > div {
+                width: 100%;
+                height: 50vh;
+                opacity: 0;     
+            }
+            
+        #shc {
+            position: absolute;
+            left:0;
+        }
+        #huisjes {    
+            background-image: url("../Display/img/huisjes.png");
+            background-repeat: repeat-x;
+            height:200px;
+            width:100%;
+            background-repeat:repeat-x;
+            position:fixed;
+            bottom:0;
+        }
+        
+        canvas { 
+            background-color: transparent;
+            position:fixed;
+            display:block; /* To remove the scrollbars */
+            /*margin: 0 auto;*/
+        } 
+        
+        p {
+            color:green;
+            font-size:150%;
+            margin-left:auto;
+        }
+        #fps {
+            position: fixed;
+            top:0;
+            right:0;
+        }
+        
+        /* to show the canvas bounds */
+        #canvas_bg {
+            /*background-color: #262626;*/
+            background-color: #3d3d3d;
             /*box-shadow:0px 0px 0px 10px black inset;*/
         }
     </style>
 </head>
-<body>
-    <canvas id="canvas"></canvas>
+<body>   
+    <img id="shc" src="../Display/img/shc.png" width="100px;"></img>
+    <div id="huisjes"></div>
+    <p id="version">SP Beta: 0.05 &nbsp;&nbsp;&nbsp; SHIFT = toggle debug</p>
+    <p id="debug"><bold>If Debug: space=Addsnake, X=reverse, 5=Addsegment</bold></p>
+    
+    <canvas id="canvas1" style="z-index:3;"></canvas>
+    <canvas id="canvas_bg" style="z-index: 1;"></canvas>
+    <canvas id="canvas_fg" style="z-index: 2;"></canvas>
+    
+    <!--<div id="touch">    -->
+
+    <!--        <div id="containerTop">-->
+    <!--            <div class="button" id="up"></div>-->
+    <!--        </div>-->
+            
+    <!--        <div id="containerBottom">-->
+    <!--            <div class="buttonleft" id="left"></div>-->
+    <!--            <div class="buttondown" id="down"></div>-->
+    <!--            <div class="buttonright" id="right"></div>-->
+    <!--        </div>-->
+    <!--    </div>-->
+    <script type="text/javascript" src="../Client/lib/sound.js"></script>
     <script type="text/javascript" src="../Display/Renderer.js"></script>
     <script type="text/javascript" src="../Display/Food.js"></script>
     <script type="text/javascript" src="../Display/Snake.js"></script>
+    <script type="text/javascript" src="../Display/AI.js"></script>
     <script type="text/javascript" src="../Client/Debug.js"></script>
-    <!--<script type="text/javascript" src="../Display/Collision.js"></script>-->
+    <script type="text/javascript" src="../Display/Collision.js"></script>
     <script type="text/javascript" src="../Display/Game.js"></script>
+	<script type="text/javascript" src="../Display/comDisplay.js"></script>
+	<script type="text/javascript" src="../Display/stats.min.js"></script>
+    <script type="text/javascript" src="../Display/initGame.js"></script>
+
+    
     <script type="text/javascript">
     
-        var game = new Game();
-        var renderer = new Renderer(game);
+        addPlayer({id:2});
+        var snake = snakes[0];
+   
+   
+    /*snakes.push(new Snake(3));
+    var snake2 = snakes[snakes.length - 1];
+    // snake.color = "#1009f2";
+    snake2.length = 5;
+    snake2.spawnSnake(10, 10);*/
     
-        var snakes = [];
-        var snake = new Snake();
-        
-        //var snake2 = new Snake();
-        snakes.push(snake);
-        //snakes.push(snake2);
-        
-        //snake2.color = "#1009f2";
-        //snake2.spawnSnake(15, 15);
-        
-        snake.color = "#1009f2";
-        snake.spawnSnake(5,5);
-        
-       // snakes.push(snake);
-        
-        var speed = 20;
-        
-        function gameLoop() {
-            spawnFood();
-            
-            //renderer.drawCells();
-            //renderer.drawCell(food.position, food.color);
-            renderer.drawSnakes(snakes);
-            
-            // comes in the function: update(); (not yet defined)
-            for (var i = 0; i < snakes.length; i++) {
-                snakes[i].moveSnake();
-            }
-            
-            collisionDetect();
-            
-             setTimeout(function(){
-               gameLoop();
-             }, 1000 / speed); //20
-        }
-        
-        //houdt bij hoeveel food gepakt en doet dit getal keer de "points" van food om een score mee te geven
-        //totalCaughtFood wordt geincrement in de functie collisionDetect
-        var totalCaughtFood = 0;
-        var caughtFood = true;
-        var food;
-        function spawnFood() {
-            if(caughtFood == true) {
-                food = new Food();
-                renderer.drawCell(food.position, food.color);
-                caughtFood = false;
-            }
-        }
-        
-        //check for collision
-        var loopTime = 0;
-        //var gridWidth = (cellSize + cellSpacing) * sizeX;
-        //var gridHeight = (cellSize + cellSpacing) * sizeY;
-        function collisionDetect() { //kleuren collision links rechts en boven van de slang, of de kleur niet
-            /*var front;
-            var left;
-            var right;
-            snakes.forEach(function(snake) { //get the cells in front of and next to the heads of the snakes
-                switch(snake.direction) {
-                        case 0: // Right
-                            front = { x: snake.segments[0].x + 2, y: snake.segments[0].y};
-                            left =  { x: snake.segments[0].x,     y: snake.segments[0].y + 1 };
-                            right = { x: snake.segments[0].x,     y: snake.segments[0].y - 1 };
-                            break;
-                        case 1: // Left
-                            front = { x: snake.segments[0].x - 2, y: snake.segments[0].y };
-                            left =  { x: snake.segments[0].x,     y: snake.segments[0].y - 1 };
-                            right = { x: snake.segments[0].x,     y: snake.segments[0].y + 1 };
-                            break;
-                        case 2: // Up
-                            front = { x: snake.segments[0].x,     y: snake.segments[0].y - 2 };
-                            left = snake.segments[0].x - 1;
-                            right = snake.segments[0].x + 1;
-                            break;
-                        case 3: // Down
-                            front = { x: snake.segments[0].x,     y: snake.segments[0].y + 2 };
-                            left = snake.segments[0].x + 1;
-                            right = snake.segments[0].y - 1;
-                            break;
-                            
-                        default: // toegevoegd anders heb ik error met nieuwe implementaties
-                            front = { x: snake.segments[0].x + 2,     y: snake.segments[0].y };
-                            left = snake.segments[0].x + 1;
-                            right = snake.segments[0].y - 1;
-                    }
-                    
-                //get color data in front of the snake
-                var cs = game.cellSize;
-                var csp = game.cellSpacing;
-                
-                var xData = front.x * (cs + csp) + csp;
-                var yData = front.y * (cs + csp) + csp;*/
-                /*var wg = (game.wGridth / 2 | 0);
-                var hg = (game.hGridth / 2 | 0);*/
-               /* var colorData = renderer.ctx.getImageData(xData, yData, cs, cs).data; // * cs + (cs * csp) + wg
-                var RGB = colorData[0] + " " + colorData[1] + " " + colorData[2];
-                //colorData[0] = 255;
-                //renderer.ctx.putImageData(colorData, (front.x * (cs + csp) + 1), (front.y * (cs + csp)));
-                console.log("RGB: " + RGB + " | xData: " + xData + " yData: " + yData);
-                
-                //#4D4D4D = 77 77 77
-            })*/
-            
-            //init collision objects
-            /*var wallLeft = new Collision(0, 0, 10, 1000);
-            if(wallLeft.CollisionWith(snake)) {
-                console.log("collision");
-            }*/
-            
-            //----------------------------------------------------------------------------------
-            //collision with your own snake
-            for(var i = 1; i <= snake.length; i++) {
-                if(snake.segments[0].x == snake.segments[i].x && snake.segments[0].y == snake.segments[i].y) {
-                    alert("Game Over | Points:" + loopTime);
-                    throw new Error("Game Over");
-                }
-            }
-            
-            //collision with canvas wall right
-            if(snake.segments[0].x == game.sizeX) {
-                if(debugMode === true) { //kan later worden vervangen door "openWall === true"?
-                    snake.segments[0].x = 0;
-                } else {
-                    alert("Game Over | Points:" + loopTime);
-                    throw new Error("Game Over");
-                }
-            }
-            //collision with canvas wall left
-            if(snake.segments[0].x <= -1) {
-                if(debugMode === true) { //kan later worden vervangen door "openWall === true"?
-                    snake.segments[0].x = game.sizeX - 1;
-                } else {
-                    alert("Game Over | Points:" + loopTime);
-                    throw new Error("Game Over");
-                }
-            }
-            //collision with canvas wall right
-            if(snake.segments[0].y == game.sizeY) {
-                if(debugMode === true) { //kan later worden vervangen door "openWall === true"?
-                    snake.segments[0].y = 0;
-                } else {
-                    alert("Game Over | Points:" + loopTime);
-                    throw new Error("Game Over");
-                }
-            }
-            
-            if(snake.segments[0].y <= -1) {
-                if(debugMode === true) { //kan later worden vervangen door "openWall === true"?
-                    snake.segments[0].y = game.sizeY - 1;
-                } else {
-                    alert("Game Over | Points:" + loopTime);
-                    throw new Error("Game Over");
-                }
-            }
-            
-            //collision with Fruit
-            if(snake.segments[0].x == food.position.x && snake.segments[0].y == food.position.y) {
-                totalCaughtFood++;
-                caughtFood = true;
-                snake.addSegment(4);//4
-            }
-            
-            loopTime++;
-        }
-
-
-        function drawSnakes() {    
-            for (var i = snake.length; i >= 0; i--) {
-                var test;
-                if (i === snake.length) {
-                    renderer.drawCell(snake.segments[i],  game.clearColor);   
-                }  
-                if (i === 0) {
-                    switch(snake.direction) {
-                        case 0: // Right
-                            snake.segments[0] = { x: snake.segments[0].x + 1, y: snake.segments[0].y }
-                            break;
-                        case 1: // Left
-                            snake.segments[0] = { x: snake.segments[0].x - 1, y: snake.segments[0].y }
-                            break;
-                        case 2: // Up
-                            snake.segments[0] = { x: snake.segments[0].x, y: snake.segments[0].y - 1 }
-                            break;
-                        case 3: // Down
-                            snake.segments[0] = { x: snake.segments[0].x, y: snake.segments[0].y + 1 }
-                            break;
-                    }
-                } 
-                else {                      
-                    snake.segments[i] = { x:  snake.segments[i - 1].x, y:  snake.segments[i - 1].y } 
-                }
-                renderer.drawCell( snake.segments[i],  snake.color);
-            }  
-        }
-
-
-
     window.addEventListener('keydown', function(e) {
-        if (e.keyCode === 38 && snake.direction !== 3) {
-            snake.direction = 2; // Up
-            snake.moves.push(2);
-        } else if (e.keyCode === 40 && snake.direction !== 2) {
-            snake.direction = 3; // Down
-            snake.moves.push(3);
-        } else if (e.keyCode === 37 && snake.direction !== 0) {
-            snake.direction = 1; // Left
-            snake.moves.push(1);
-        } else if (e.keyCode === 39 && snake.direction !== 1) {
-            snake.direction = 0; // Right
-            snake.moves.push(0);
+        if (e.keyCode === 38 && snakes[0].direction !== 3) {
+            snakes[0].direction = 2; // Up
+            snakes[0].moves.push(2);
+        } else if (e.keyCode === 40 && snakes[0].direction !== 2) {
+            snakes[0].direction = 3; // Down
+            snakes[0].moves.push(3);
+        } else if (e.keyCode === 37 && snakes[0].direction !== 0) {
+            snakes[0].direction = 1; // Left
+            snakes[0].moves.push(1);
+        } else if (e.keyCode === 39 && snakes[0].direction !== 1) {
+            snakes[0].direction = 0; // Right
+            snakes[0].moves.push(0);
         } 
         
         //enter debug mode: shift
-        if (e.keyCode === 16) {
+        else if (e.keyCode === 16) {
             EnableDebug();
         }
     });
     
-    //draws the entire grid
-    renderer.drawCells();
-    gameLoop();
+    addAI();
+    
+        // function mouseDown(arrow) {
+        //     if(arrow == 'up'    && snake.direction !== 3) {
+        //       snakes[0].direction = 2; // Right
+        //         snakes[0].moves.push(2);
+        //     }
+        //     else if(arrow == 'down'  && snake.direction !== 2) {
+        //         snakes[0].direction = 3; // Right
+        //     snakes[0].moves.push(3);
+        //         }
+        //     else if(arrow == 'left'  && snake.direction !== 0) {
+        //         snakes[0].direction = 1; // Right
+        //     snakes[0].moves.push(1);
+        //     }
+        //     else if(arrow == 'right' && snake.direction !== 1){
+        //         snakes[0].direction = 0; // Right
+        //     snakes[0].moves.push(0);
+        //     }
+        // }
 
+
+        // //touch
+        //     var up = document.getElementById('up');
+        //     var down = document.getElementById('down');
+        //     var left = document.getElementById('left');
+        //     var right = document.getElementById('right');
+            
+        //     up.addEventListener('touchstart', function (e) {
+        //         mouseDown('up');
+        //         e.preventDefault();
+        //     }, false);
+            
+        //     down.addEventListener('touchstart', function (e) {
+        //         mouseDown('down');
+        //         e.preventDefault();
+        //     }, false);
+            
+        //     left.addEventListener('touchstart', function (e) {
+        //         mouseDown('left');
+        //         e.preventDefault();
+        //     }, false);
+            
+        //     right.addEventListener('touchstart', function (e) {
+        //         mouseDown('right');
+        //         e.preventDefault();
+        //     }, false);
+            
+    //draws the entire grid
+    // renderer.drawCells();
+    //gameLoop();
+    
+    /*food.totalCaughtFood++;
+    food.caughtFood = true;
+    snakes[0].addSegment(4);*/
+    //food.spawnFood();
+    //renderer.drawCell(food.position = randPosition(), food.color);
+//renderer.drawCell(food.position = randPosition(), food.color);
     </script>
 </body>
 </html>

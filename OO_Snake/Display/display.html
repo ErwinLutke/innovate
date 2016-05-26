@@ -6,24 +6,115 @@
     <style type="text/css">
         * { margin:0; padding:0; } /* to remove the top and left whitespace */
 
-        html, body { width:100%; height:100%; } /* just to be sure these are full screen*/
+        html, body { 
+            width:100%; 
+            height:100%; 
+            background-color: #000000;
+            text-align:center;
+        } /* just to be sure these are full screen*/
 
-        canvas { display:block; } /* To remove the scrollbars */
-
+        #shc {
+            position: absolute;
+            left:0;
+        }
+        #huisjes {    
+            background-image: url("img/huisjes.png");
+            background-repeat: repeat-x;
+            height:200px;
+            width:100%;
+            background-repeat:repeat-x;
+            position:fixed;
+            bottom:0;
+        }
+        
+        canvas { 
+            /*background-color: transparent;*/
+            position:fixed;
+            display:block; /* To remove the scrollbars */
+            /*margin: 0 auto;*/
+        } 
+        
+        p {
+            color:green;
+            font-size:150%;
+            margin-left:auto;
+        }
+        #fps {
+            top:0;
+            position: fixed;
+            right:0;
+        }
         /* to show the canvas bounds */
-        canvas {
-            background-color: #262626;
+         #canvas_bg {
+            /*background-color: #262626;*/
+            background-color: #3d3d3d;
             /*box-shadow:0px 0px 0px 10px black inset;*/
         }
     </style>
 </head>
     <body>
-        <canvas id="canvas"></canvas>
-	    <script src="/socket.io/socket.io.js"></script>
+        
+
+        <img id="shc" src="img/shc.png" width="100px;"></img>
+        <div id="huisjes"></div>
+        
+        <p id="version">MP-Beta: 0.05</p>
+        <p id="fps"><bold>??? FPS</bold></p>
+        
+        <canvas id="canvas1" style="z-index: 3;"></canvas>
+        <canvas id="canvas_bg" style="z-index: 1;"></canvas>
+        <canvas id="canvas_fg" style="z-index: 2;"></canvas>
+        
+	    <script src="/socket.io/socket.io.js"></script>  
+        <script src="stats.min.js"></script>  
+        
+	    <script type="text/javascript" src="../Client/lib/sound.js">
+
+        sounds.load([
+          "../Client/lib/sounds/explosion.wav", 
+          "../Client/lib/sounds/music.wav",
+        ]);
+        
+        sounds.whenLoaded = setup;
+       
+        function setup() {
+          console.log("sounds loaded");
+        
+          //Create the sounds
+          var explosion = sounds["sounds/explosion.wav"],
+              music = sounds["sounds/music.wav"]; 
+              
+          music.loop = true;
+          music.volume = 0.7;  
+        }
+        
+        function sfxEat() {
+          soundEffect(
+            523.25,       //frequency
+            0.05,         //attack
+            0.2,          //decay
+            "sine",       //waveform
+            1,            //volume
+            0.5,          //pan
+            0,            //wait before playing
+            600,          //pitch bend amount
+            true,         //reverse
+            100,          //random pitch range
+            0,            //dissonance
+            undefined,    //echo: [delay, feedback, filter]
+            undefined     //reverb: [duration, decay, reverse?]
+          );
+        }
+
+    </script>
+        <script type="text/javascript" src="Collision.js"></script>
         <script type="text/javascript" src="Renderer.js"></script>
         <script type="text/javascript" src="Food.js"></script>
         <script type="text/javascript" src="Game.js"></script>
         <script type="text/javascript" src="Snake.js"></script>
-	    <script src="comDisplay.js"></script>
+	    <script type="text/javascript" src="comDisplay.js"></script>
+	    <script type="text/javascript" src="Stats.js"></script>
+	    
+	    <script type="text/javascript" src="initGame.js"></script>
     </body>
 </html>

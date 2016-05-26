@@ -1,30 +1,17 @@
 {
-  
-    "Player1": {
-      "Naam": "Jan",
-      "Score": "35",
-      "Nummer": "06239583"
-    },
-    "Player2": {
-      "Naam": "Kees",
-      "Score": "30",
-      "Nummer": "06239583"
-    },
-    "Player3": {
-      "Naam": "Piet",
-      "Score": "50",
-      "Nummer": "06239583"
-    },
-    "Player4": {
-      "Naam": "Henk",
-      "Score": "45",
-      "Nummer": ""
-    }
-    "Player5": {
-      "Naam": "Karel",
-      "Score": "70",
-      "Nummer": ""
-    }
-  
+  "Player1": {
+    "Naam": "Leon",
+    "Score": 750,
+    "Nummer": "0632165489"
+  },
+  "Player2": {
+    "Naam": "Jasper",
+    "Score": 650,
+    "Nummer": "0632165489"
+  },
+  "Player3": {
+    "Naam": "Jan",
+    "Score": 500,
+    "Nummer": "0623958378"
+  }
 }
-

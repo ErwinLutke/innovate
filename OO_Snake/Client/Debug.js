@@ -21,8 +21,30 @@ function Debug(e) {
         } else if ((e.keyCode === 109 || e.keyCode === 189) && speed > 2) { // -
             speed -= 1; 
         }
-        if(e.keyCode === 53) { // 5
+        // add a segment
+        if(e.keyCode === 53) { // number 5
             snakes[0].addSegment(1);
+            console.log(snakes[0].length)
+        }
+        
+        
+        // reverse snake... 
+        if(e.keyCode === 88) { // x
+            var snake = snakes[0];
+            var ss = snakes[0].segments.length -1;
+            if(snake.segments[ss -1].x == snake.segments[ss].x) {
+                if(snake.segments[ss -1].y < snake.segments[ss].y) snake.direction = 3;
+                else if(snake.segments[ss -1].y > snake.segments[ss].y) snake.direction = 2;   
+            }           
+            else if(snake.segments[ss -1].y == snake.segments[ss].y) {
+                if(snake.segments[ss -1].x < snake.segments[ss].x) snake.direction = 0;
+                else if(snake.segments[ss -1].x > snake.segments[ss].x) snake.direction = 1; 
+            }
+            snake.segments.reverse();
+        }
+        
+        if (e.keyCode === 32) {
+            addPlayer({id:3});
         }
     /*} else {
         

@@ -1,8 +1,8 @@
 //Script Snake.js
 function Snake(id) {
-    this.length = 5;
+    id = id || null;
+    this.length = 0;
     this.color = false;
-    this.move = true;
     this.direction = false;
     
     this.segments = [];
@@ -11,10 +11,15 @@ function Snake(id) {
     this.clientID = id; //een snake is gekoppeld aan een client
     this.nextToCollision = ""; //kan zijn: right, left, front | Checkt bij elke beweging of hij ergens tegen aan botst
     this.addColor();
+    this.points = 2;
+    this.totalCaughtFood = 0;
+    this.totalCaughtSnakeFood = 0;
+    this.isAI = false;
+  //  this.remove = false;
 }
 
 Snake.prototype.spawnSnake = function(startX, startY) {
-    this.segments[0] = {x : (startX), y : startY};
+    this.segments[0] = {x: startX, y: startY};
     
     // voeg alle segmenten toe aan de hand van "length"
     for (var i = 1; i <= this.length; i++) {
@@ -31,39 +36,31 @@ Snake.prototype.addSegment = function(amountOfSegments) {
     }
 };
 
+
+
 Snake.prototype.moveSnake = function(){
-    // zodra op een toets wordt gedrukt gaat de slang bewegen
-    if(this.direction !== false) {
-        if (this.moves.length > 0) {
+    if(!this.isAI) {
+        // var speed = 1;
+        // zodra op een toets wordt gedrukt gaat de slang bewegen
+        var hx = this.segments[0].x;
+        var hy = this.segments[0].y;
+    
+        if(this.direction !== false) {
+            if (this.moves.length > 0) {
                 this.direction = this.moves.shift();
-                // console.log(this.direction);
-        }
-        for(var i = this.length; i >= 0; i--) {
-            if (i === 0) {
-                switch(this.direction) {
-                    case 0: // Right
-                        this.segments[0] = { x: this.segments[0].x + 1, y: this.segments[0].y };
-                        this.move = true;
-                        break;
-                    case 1: // Left
-                        this.segments[0] = { x: this.segments[0].x - 1, y: this.segments[0].y };
-                        this.move = true;
-                        break;
-                    case 2: // Up
-                        this.segments[0] = { x: this.segments[0].x, y: this.segments[0].y - 1 };
-                        this.move = true;
-                        break;
-                    case 3: // Down
-                        this.segments[0] = { x: this.segments[0].x, y: this.segments[0].y + 1 };
-                        this.move = true;
-                        break;
+                if (this.moves.length > 2) {
+                    this.moves.splice(2, this.moves.length); 
                 }
-            } 
-            else {   
-                this.segments[i] = { x:  this.segments[i - 1].x, y:  this.segments[i - 1].y };
             }
-        }
-    }   
+            
+            if(this.direction === 0) this.segments.unshift({x: hx + 1, y: hy});
+            if(this.direction === 1) this.segments.unshift({x: hx - 1, y: hy});
+            if(this.direction === 2) this.segments.unshift({x: hx, y: hy - 1});
+            if(this.direction === 3) this.segments.unshift({x: hx, y: hy + 1});
+            this.segments.pop();
+    
+        }   
+    }
 };
 
 // Snake.prototype.addSegment = function(AmountOfSegments) { //TO DO: moet 1 tile wachten voordat je een segment toevoegt
@@ -87,7 +84,7 @@ Snake.prototype.addColor = function() {
     
     switch(rand) {
         case 1:
-            this.color = "blue";
+            this.color = "darkblue";
             break;
         case 2:
             this.color = "orange";
@@ -105,7 +102,7 @@ Snake.prototype.addColor = function() {
             this.color = "purple";
             break;
         case 7:
-            this.color = "pink";
+            this.color = "red";
             break;
         case 8:
             this.color = "darkgreen";

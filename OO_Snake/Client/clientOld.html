@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Snake</title>
+        <style type="text/css">
+          * { margin:0; padding:0; } /* to remove the top and left whitespace */
+
+            html, body { width:100%; height:100%; } /* just to be sure these are full screen*/
+            .button {
+                background-color: blue;
+            }
+            .buttonleft {
+                background-color: green;
+            }.buttonright {
+                background-color: purple;
+            } 
+            .buttondown {
+                background-color: orange;
+            }
+            #goFS {
+                position: absolute;
+                width:50px;
+            }
+            
+            #touch {
+                /*position:relative;*/
+                /*padding:0;*/
+                /*margin:auto auto;*/
+            
+                /*top:50;*/
+                /*left:0;*/
+            
+                width:100%;
+                height:100%;
+                position:absolute;
+            }
+            #containerTop, #containerBottom {
+                display: flex;  
+                flex-direction: row;  
+                flex-wrap: nowrap;     
+                justify-content: flex-start;  
+                
+            }
+            
+            #containerBottom > div {
+                width: 100%;
+                height: 50vh;
+            } 
+            #containerTop > div {
+                width: 100%;
+                height: 50vh;
+            }
+        </style>
+</head>
+<body>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="comClient.js"></script>
+    <script src="Controller.js"></script>
+
+    <!-- <p id="demo"> -->
+    <!--    use arrow keys for movement, or press the buttons (smartphone, touch only)-->
+    <!--</p>-->
+        <div id="touch">    
+
+            <div id="containerTop">
+                <div class="button" id="up"></div>
+            </div>
+            
+            <div id="containerBottom">
+                <div class="buttonleft" id="left"></div>
+                <div class="buttondown" id="down"></div>
+                <div class="buttonright" id="right"></div>
+            </div>
+        </div>
+        
+        <!--<button id="goFS">FS<button>-->
+        
+    <script type="text/javascript">
+    //   var goFS = document.getElementById("goFS");
+    //       goFS.addEventListener("touchstart", function() {
+    //           document.body.requestFullscreen();
+    //       }, false);
+    function hideAddressBar()
+{
+  if(!window.location.hash)
+  {
+      if(document.height < window.outerHeight)
+      {
+          document.body.style.height = (window.outerHeight + 50) + 'px';
+      }
+
+      setTimeout( function(){ window.scrollTo(0, 1); }, 50 );
+  }
+}
+
+window.addEventListener("load", function(){ if(!window.pageYOffset){ hideAddressBar(); } } );
+window.addEventListener("orientationchange", hideAddressBar );
+
+        function Snake() {
+            this.direction = false;
+        }
+            
+        
+        var snake = new Snake();
+        
+        var controller = new Controller(snake);
+        
+        window.addEventListener('keydown', function(e) {
+            if (e.keyCode === 38 && snake.direction !== 3) {
+                controller.command("up"); // Up 
+            } else if (e.keyCode === 40 && snake.direction !== 2) {
+                controller.command("down"); // Down
+                console.log("down");
+            } else if (e.keyCode === 37 && snake.direction !== 0) {
+                controller.command("left"); // Left
+                console.log("left");
+            } else if (e.keyCode === 39 && snake.direction !== 1) {
+                controller.command("right"); // Right
+                console.log("right");
+            }
+            
+            if (controller.allowMove) {
+                socket.emit("movePlayer", snake.direction);
+                controller.allowMove = false;
+            }
+        });
+        
+        function mouseDown(arrow) {
+            if(arrow == 'up'    && snake.direction !== 3) controller.command("up");
+            if(arrow == 'down'  && snake.direction !== 2) controller.command("down");
+            if(arrow == 'left'  && snake.direction !== 0) controller.command("left");
+            if(arrow == 'right' && snake.direction !== 1) controller.command("right");
+            if (controller.allowMove) {
+                socket.emit("movePlayer", snake.direction);
+                controller.allowMove = false;
+            }
+        }
+
+        //touch
+            var up = document.getElementById('up');
+            var down = document.getElementById('down');
+            var left = document.getElementById('left');
+            var right = document.getElementById('right');
+            
+            up.addEventListener('touchstart', function (e) {
+                mouseDown('up');
+                e.preventDefault();
+            }, false);
+            
+            down.addEventListener('touchstart', function (e) {
+                mouseDown('down');
+                e.preventDefault();
+            }, false);
+            
+            left.addEventListener('touchstart', function (e) {
+                mouseDown('left');
+                e.preventDefault();
+            }, false);
+            
+            right.addEventListener('touchstart', function (e) {
+                mouseDown('right');
+                e.preventDefault();
+            }, false);
+            
+        
+    </script>
+</body>
+</html>
