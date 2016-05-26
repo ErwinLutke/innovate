@@ -1,0 +1,351 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 17-mei-2016, 9:59:55
+    Author     : Nathan
+*/
+
+@font-face{
+    font-family: "FreePixel";
+    src: url('../fonts/FreePixel.ttf')
+
+}
+
+@font-face{
+    font-family: "MadPixel";
+    src: url('../fonts/MadPixels.otf') 
+}
+
+
+html{
+    height: 100%;
+    position: relative;
+    // background-color: #b3c6ff;
+}
+
+body {
+    // background-color: #b3c6ff;
+    font-family: FreePixel, Arial, helvetica, sans-serif;
+    height: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 auto;
+    background: url(../images/snakesBgBlue.png) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+
+}
+
+h1, h2{
+    font-family: MadPixel;
+} 
+
+
+.container{
+    height: 100%;
+    background-size: cover;
+}
+
+.top{
+    height: 20%;
+}
+
+.logo{
+    max-height: 180px;
+    margin-bottom: 30px;
+    margin-top: 10px;
+}
+
+.base{
+    max-height: 50%;
+}
+
+.base p{
+    font-size: 1.4em;
+}
+
+.rasp{
+    display: block;
+    margin: auto;
+    margin-top: 60px;
+}
+
+.score{
+    text-align: center;
+    margin-top: 140px;
+    font-weight: bold;
+    font-size: 2.5em;
+}
+
+.score2{
+    text-align: center;
+    font-weight: bold;
+    font-size: 2.5em;
+}
+
+.upButton{
+    margin-left: 72px;
+    max-height: 75px;
+    margin-top: 50px;  
+}
+
+.controls img{
+    float: left;
+
+}
+
+.button{
+    max-height: 75px;
+}
+
+
+.high{
+    max-height: 120px;
+    display:block;
+    margin: auto;
+    //  margin-top: 80px;
+}
+
+.bottom{
+    height: 20%;
+}
+
+.house{
+    max-height: 100px;
+
+}
+
+.small{
+    display: none;
+}
+
+.landscape{
+    display: inherit;
+}
+
+.mobile{
+    display: none;
+}
+
+.portrait{
+    display: none;
+}
+
+.phone{
+    margin: auto;
+    min-height: 150px;
+    margin-top: 50px;
+    display: block;
+}
+
+.btn{
+    display: block;
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    background: linear-gradient(#003366, #001a33);
+    border: gray;
+    color: white;
+    width: 100px;
+    height: 55px;
+    font-size: 1.5em;
+    -webkit-box-shadow: 0 8px 6px -6px #999;
+    -moz-box-shadow: 0 8px 6px -6px #999;
+    box-shadow: 0 8px 6px -6px #999;
+}
+
+.btn:hover{
+    background: linear-gradient(#333333, #404040);
+    color: white;
+
+}
+
+.logo_small{
+    max-height: 75px;
+}
+
+.usernameInput h3{
+    font-weight: bold;
+}
+
+.mobileControls{
+    max-height: 80px;
+    margin-left: 20px;
+}
+
+.mobileControls2{
+    max-height: 80px;
+    margin-top: 55px;
+    // float: right;
+}
+
+.raspMob{
+    display: block;
+    margin: auto;
+    margin-top:65px;
+    max-height: 60px;
+}
+
+.scoreMob{
+    margin-top: 20px;
+}
+.down{
+    margin-left: 21px;
+}
+
+.color{
+    color: black;
+    font-weight: bold;
+    margin-left: 20px;
+    margin-top: 20px;
+    background-color: yellow;
+    opacity: 0.7;
+    border: 0px;
+    border-radius: 25px;
+}
+
+.gameOver h3{
+    font-weight: bold;
+}
+
+.crown{
+    max-height: 175px;
+    display: block;
+    margin: auto;
+}
+
+.goImg{
+    margin-top: 100px;
+}
+
+.tryAgain{
+    margin-top: 140px;
+    margin-bottom: 35px;
+}
+
+.go h1{
+    font-size: 4em;
+}
+
+.wachtrij h1{
+    font-size: 3em;
+}
+
+.wachtrij h4{
+    font-weight: bold;
+}
+
+.centerImg{
+    display: block;
+    margin: auto;
+}
+
+.crown2{
+    display: block;
+    margin: auto;
+    max-height: 175px;
+    margin-top:25px;
+}
+
+.topScore h3{
+    font-weight: bold;
+}
+
+.topScore p {
+    font-style: italic;
+}
+
+
+
+@media screen and (max-width: 800px) and (orientation:landscape){
+    .big{
+        display: none;
+    }
+    .desktop{
+        display: none;
+    }
+    .landscape{
+        display: inherit;
+    }
+    .portrait{
+        display: none;
+    }
+    .tryAgain{
+        margin-top: 50px;
+        margin-bottom: 15px;
+    }
+
+    .goImg{
+        margin-top: 80px;
+    }
+
+    .crown{
+        max-height: 110px;
+    }
+
+    .crown2{
+        max-height: 120px;
+    }
+
+    .snake{
+        max-height: 80px;
+    }
+
+
+}
+
+@media screen and (max-width: 800px) and (orientation:portrait){
+    .big{
+        display: none;
+    }
+    .desktop{
+        display: none;
+    }
+    .landscape{
+        display: none;
+    }
+
+    .portrait{
+        display: inherit;
+    }
+
+    .usernameInput{
+        display: none;
+    }
+
+}
+
+
+@media screen and (min-width: 800px) and (max-width: 1200px){
+    .big{
+        display: none;
+    }
+    .small{
+        display: inherit;
+    }
+    .landscape{
+        display: inherit;
+    }
+
+    .mobile{
+        display: none;
+    }
+
+    .portrait{
+        display: none;
+    }
+
+    .tryAgain{
+        margin-top: 140px;
+        margin-bottom: 15px;
+    }
+    .goImg{
+        margin-top: 120px;
+    }
+
+}

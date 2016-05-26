@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Controls</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="css/custom.css" rel="stylesheet">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+    </head>
+    <body>
+        <!-- JQuery Version 2.2.4 -->
+        <script src="js/jquery-2.2.4.min.js"></script>
+
+        <!-- jQuery Version 1.11.1 
+        <script src="js/jquery.js"></script> -->
+
+        <!-- Bootstrap Core JavaScript -->
+        <script src="js/bootstrap.min.js"></script>
+
+
+
+
+        <!-- div voor het username invoeren scherm -->
+
+        <div class="container-fluid firstScreen">
+
+            <div class="container usernameInput">
+                <div class="row top">
+                    <div class="col-xs-3 col-xs-offset-1">
+                        <img src="images/Snakelogoblue.png" alt="logo" class="img-responsive logo">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-11 col-xs-offset-1">           
+                        <h3> 1. Make sure you are connected to the Wifi network "Samba". </h3>
+                        <h3> 2. Enter a nickname below. </h3>
+                        <h3> 3. Click Play! </h3>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-xs-4 col-xs-offset-4">           
+                        <form action="" method="post" onsubmit="showHide();
+                                return false" id="usernameInput">
+                            <h3>  <label for="username"> Nickname </label></h3>
+                            <input type="text" id="username" class="form-control" required>
+                            <input type='submit' value="Play!" id='submit' class='form-control btn'>
+                        </form> 
+                    </div>
+                </div>
+            </div>
+            <!-- Div voor als de telefoon in portrait mode is tijdens het username invoeren, 
+                 geeft een melding dat de telefoon 90 graden gedraaid moet worden -->
+            <div class='container-fluid portrait'>
+                <img src="images/Snakelogoblue.png" alt='logo' class="img-responsive logo">
+                <h2> Turn your phone 90 degrees to enter a nickname and get started! </h2>
+                <img src="images/turn_phone.png" alt='turn_phone' class="img-responsive phone">
+            </div>
+        </div>
+
+
+
+        <!-- div voor de controls en scoreweergave op desktop en tablet -->
+        <div class="controller">
+            <div class="container desktop">
+                <div class="row top">
+                    <div class="col-xs-6 col-xs-offset-3">
+                        <img src="images/Snakelogoblue.png" alt='logo' class="img-responsive logo">
+                    </div>
+                </div>
+
+                <div class="row base">
+                    <div class="col-xs-4 text-left">
+                        <h1 class="big"> Play the game! </h1>
+                        <p> To play the game, use the arrow buttons on your keyboard. </p>
+
+
+                        <img id="up1" src="images/up.png" alt='up'  class="img-responsive upButton" onmousedown="changeUp1()"> 
+                        <img id="up2" src="images/upClick.png" alt='up'  class="img-responsive upButton" onmouseup="changeUp2()" style="display:none;">
+
+                        <div class="controls">
+                            <img id="left1" src="images/left.png" alt='left' class="img-responsive button" onmousedown="changeLeft1()">
+                            <img id="left2" src="images/leftClick.png" alt='left' class="img-responsive button" onmouseup="changeLeft2()" style="display:none;">
+                            <img id="down1" src="images/down.png" alt='down' class="img-responsive button" onmousedown="changeDown1()">
+                            <img id="down2" src="images/downClick.png" alt='down' class="img-responsive button"  onmouseup="changeDown2()" style="display:none;">
+                            <img id="right1" src="images/right.png" alt='right' class="img-responsive button" onmousedown="changeRight1()">
+                            <img id="right2" src="images/rightClick.png" alt='right' class="img-responsive button" onmouseup="changeRight2()" style="display:none;">
+                        </div>
+                    </div>
+                    <div class="col-xs-4 text-center">
+                        <h1 class="big"> Eat fruit! </h1>
+                        <p> Eat fruits to grow bigger and get more points. </p>
+                        <img src="images/raspberry.png" alt='raspberry_logo' class="img-responsive rasp">
+                    </div>
+                    <div class="col-xs-4 text-center">
+                        <div class='big'><h1> Your  score: </h1></div>
+                        <div class='small'><h2> Score: </h2></div>
+                        <h3 class="score"> 4523 </h3>
+                        <h3 class="score2"> points </h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class='col-xs-6 col-xs-offset-3 text-center'>
+                        <p class='color' style="background-color: green;">The color of your snake is: GREEN</p>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- div voor mobiele weergave van de controls en score -->
+            <div class='container-fluid landscape mobile'>
+                <div class="row">
+                    <div class="col-xs-4 col-xs-offset-1">
+                        <img src="images/Snakelogoblue.png" alt="logo" class="img-responsive logo">
+                    </div>
+                    <div class="col-xs-4 col-xs-offset-3 text-center scoreMob">
+                        <h2> Score: </h2>
+                        <h3> 4523 </h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-5">
+                        <img id="Umobile" src="images/up.png" alt="upmobile" class="img-responsive mobileControls">
+                        <img id="Umobile1" src="images/upClick.png" alt="upmobile" class="img-responsive mobileControls" style="display:none;">
+                        <img id="Dmobile" src="images/down.png" alt="downmobile" class="img-responsive mobileControls down">
+                        <img id="Dmobile1" src="images/downClick.png" alt="downmobile" class="img-responsive mobileControls down" style="display: none;">
+                    </div>
+                    <div class="col-xs-2 text-center">
+                        <img src="images/raspberryMobile.png" alt="raspberry" class="img-responsive raspMob">
+                    </div> 
+                    <div class="col-xs-5">
+                        <img id="Rmobile" src="images/right.png" alt="rightmobile" class="img-responsive mobileControls2 pull-right">
+                        <img id="Rmobile1" src="images/rightClick.png" alt="rightmobile" class="img-responsive mobileControls2 pull-right" style="display:none;">
+                        <img id="Lmobile" src="images/left.png" alt="leftmobile" class="img-responsive mobileControls2 pull-right">
+                        <img id="Lmobile1" src="images/leftClick.png" alt="leftmobile" class="img-responsive mobileControls2 pull-right" style="display:none;">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class='col-xs-6 col-xs-offset-3 text-center'>
+                        <p class='color' style="background-color: blue">The color of your snake is: BLUE</p>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <!-- Div voor als de telefoon in portrait mode is tijdens het spelen van het spel, 
+                geeft een melding dat de telefoon 90 graden gedraaid moet worden -->
+            <div class='container-fluid portrait'>
+                <img src="images/Snakelogoblue.png" alt='logo' class="img-responsive logo">
+                <h1> Turn your phone 90 degrees to use the controls! </h1>
+                <img src="images/turn_phone.png" alt='turn_phone' class="img-responsive phone">
+            </div>
+        </div>
+
+
+        <div class="container wachtrij">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h1> Waiting list... </h1>
+                    <hr>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-8 col-xs-offset-2">
+                    <h4> Because there are 10 players in the game, you will have to wait for your turn to play.</h4>
+                    <img src="images/snake4.gif" alt="snake" class="img-responsive centerImg snake">
+                </div>
+            </div>
+            <div class="row">
+
+
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3> There are -5- waiting before you. </h3>
+                </div>
+            </div>
+        </div>                
+
+
+
+        <!-- Game over scherm / zonder topscore -->
+        <div class='container gameOver'>
+            <div class='row go'>
+                <div class=' col-xs-12 text-center'>
+                    <h1>Game over!</h1>
+                    <hr class="portrait">
+                </div>
+            </div>
+
+            <!-- Landscape modus -->
+            <div class='row landscape'>
+                <div class='col-xs-3 text-left '>
+                    <img src='images/dead.png' alt='gameover' class='img-responsive goImg'>
+                    <hr>
+                    <h2> Your score: </h2>
+                    <h3> 4353 </h3>
+                </div>
+                <div class='col-xs-1'></div>
+                <div class=' col-xs-4 text-center '>
+                    <img src='images/Crown.png' alt='kroon' class='img-responsive crown'>
+                    <hr>
+                    <h2> Top scores: </h2>
+                    <h3> Jan - 34531 </h3>
+                    <h3> Piet - 25435 </h3>
+                    <h3> Jan  - 23453 </h3>
+                </div>
+                <div class='col-xs-1'></div>
+                <div class='col-xs-3 text-center '>
+                    <h2 class='tryAgain'> Try Again? </h2>
+                    <hr>
+                    <a href='.'>  <img src='images/tryagain.png' alt='tryagain' class='img-responsive'></a>
+                </div>
+            </div>
+            <!-- portrait modus -->
+            <div class='row portrait'>
+                <div class='col-md-4 text-center '>
+                    <img src='images/dead.png' alt='gameover' class='img-responsive goImg'>
+                    <h1> Your score: </h1>
+                    <h3> 4353 </h3>
+                    <hr>
+                </div>
+
+                <div class=' col-md-4 text-center '>
+                    <img src='images/Crown.png' alt='kroon' class='img-responsive crown'>
+
+                    <h1> Top scores: </h1>
+                    <h3> Jan - 34531 </h3>
+                    <h3> Piet - 25435 </h3>
+                    <h3> Jan  - 23453 </h3>
+                    <hr>
+                </div>
+
+                <div class='col-md-4 text-center '>
+                    <h1 class='tryAgain'> Try Again? </h1>
+                    <a href='.'>  <img src='images/tryagain.png' alt='tryagain' class='img-responsive refresh'></a>
+                </div>
+            </div>
+        </div>
+        <!-- Gameover met topscore -->
+        <div class="container topScore">
+            <div class="row">
+                <div class="col-xs-12">
+                    <img src="images/Crown.png" class="crown2">
+                </div>
+            </div>
+            <div class="row">
+                <div class=" col-xs-12 text-center">
+                    <h2>Congratulations (nickname), &nbsp; you have a new highscore! </h2>
+                    <h3> Leave your phone number below for a chance to win the Raspberry Pi 3! </h3>
+
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6 col-xs-offset-3 text-center">           
+                    <form action="" method="post" onsubmit="
+                            return false" id="phoneInput">
+                        <h3>  <label for="username"> Phonenumber </label></h3>
+                        <input type="text" id="phonenumber" class="form-control" required>
+                        <input type='submit' value="Submit!" id='submit' class='form-control btn'>
+                    </form> 
+
+                </div>
+                <div class="col-xs-12 text-center">
+                    <p> (If you choose not to leave your phone number, you<strong> can't</strong> win the price.) </p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Jquery functies om de knoppen van kleur te laten veranderen
+          en de juiste divs weer te geven. -->
+        <script>
+
+
+            //Script om de mobile knoppen van kleur te veranderen op touch
+            $("#Dmobile").on('touchstart', function () {
+                $("#Dmobile").hide();
+                $("#Dmobile1").show();
+            });
+
+            $("#Dmobile").on('touchend', function () {
+                $("#Dmobile1").hide();
+                $("#Dmobile").show();
+            });
+
+            $("#Umobile").on('touchstart', function () {
+                $("#Umobile").hide();
+                $("#Umobile1").show();
+            });
+
+            $("#Umobile").on('touchend', function () {
+                $("#Umobile1").hide();
+                $("#Umobile").show();
+            });
+
+            $("#Lmobile").on('touchstart', function () {
+                $("#Lmobile").hide();
+                $("#Lmobile1").show();
+            });
+
+            $("#Lmobile").on('touchend', function () {
+                $("#Lmobile1").hide();
+                $("#Lmobile").show();
+            });
+
+            $("#Rmobile").on('touchstart', function () {
+                $("#Rmobile").hide();
+                $("#Rmobile1").show();
+            });
+
+            $("#Rmobile").on('touchend', function () {
+                $("#Rmobile1").hide();
+                $("#Rmobile").show();
+            });
+
+
+            //kleuren van de knoppen op desktop veranderen on touch
+             $("#down1").on('touchstart', function () {
+                $("#down1").hide();
+                $("#down2").show();
+            });
+
+            $("#down1").on('touchend', function () {
+                $("#down2").hide();
+                $("#down1").show();
+            });
+
+            $("#up1").on('touchstart', function () {
+                $("#up1").hide();
+                $("#up2").show();
+            });
+
+            $("#up1").on('touchend', function () {
+                $("#up2").hide();
+                $("#up1").show();
+            });
+
+            $("#left1").on('touchstart', function () {
+                $("#left1").hide();
+                $("#left2").show();
+            });
+
+            $("#left1").on('touchend', function () {
+                $("#left2").hide();
+                $("#left1").show();
+            });
+
+            $("#right1").on('touchstart', function () {
+                $("#right1").hide();
+                $("#right2").show();
+            });
+
+            $("#right1").on('touchend', function () {
+                $("#right2").hide();
+                $("#right1").show();
+            });
+
+            
+            // hide controls en gameover bij laden van de website
+            $(function ()
+            {
+                $(".controller").hide();
+                $(".gameOver").hide();
+                $(".topScore").hide();
+                $(".wachtrij").hide();
+            });
+
+            // laat de controller zien wanneer deze functie aangeroepen wordt
+            function showHide() {
+                $(".gameOver").hide();
+                $(".topScore").hide();
+                $(".firstScreen").hide();
+                $(".wachtrij").hide();
+                $(".controller").show();
+            }
+            // veranderd kleur van de toetsen in desktop mode, door te klikken of pijltjestoetsen op toetsenbord
+            function changeUp1() {
+                $("#up1").hide();
+                $("#up2").show();
+            }
+
+            function changeUp2() {
+                $("#up2").hide();
+                $("#up1").show();
+            }
+
+            function changeLeft1() {
+                $("#left1").hide();
+                $("#left2").show();
+            }
+
+            function changeLeft2() {
+                $("#left2").hide();
+                $("#left1").show();
+            }
+
+            function changeDown1() {
+                $("#down1").hide();
+                $("#down2").show();
+            }
+
+            function changeDown2() {
+                $("#down2").hide();
+                $("#down1").show();
+            }
+
+            function changeRight1() {
+                $("#right1").hide();
+                $("#right2").show();
+            }
+
+            function changeRight2() {
+                $("#right2").hide();
+                $("#right1").show();
+            }
+            document.onkeydown = function (e) {
+                switch (e.keyCode) {
+                    case 37:
+                        changeLeft1();
+                        break;
+                    case 38:
+                        changeUp1();
+                        break;
+                    case 39:
+                        changeRight1();
+                        break;
+                    case 40:
+                        changeDown1();
+                        break;
+                        //show gameover door 'o' in te drukken op toetsenbord
+                    case 79:
+                        $(".controller").hide();
+                        $(".topScore").hide();
+                        $(".wachtrij").hide();
+                        $(".gameOver").show();
+                        break;
+                        //show topscore door 't' in te drukken op toetsenbord
+                    case 84:
+                        $(".controller").hide();
+                        $(".gameOver").hide();
+                        $(".wachtrij").hide();
+                        $(".topScore").show();
+                        break;
+                        //show wachtrij door 'w' in te drukken op toetsenbord
+                    case 87:
+                        $(".controller").hide();
+                        $(".gameOver").hide();
+                        $(".wachtrij").show();
+                        $(".topScore").hide();
+                        break;
+                }
+            };
+            document.onkeyup = function (e) {
+                switch (e.keyCode) {
+                    case 37:
+                        changeLeft2();
+                        break;
+                    case 38:
+                        changeUp2();
+                        break;
+                    case 39:
+                        changeRight2();
+                        break;
+                    case 40:
+                        changeDown2();
+                        break;
+
+                }
+            };
+
+        </script>
+
+    </body>
+</html>
