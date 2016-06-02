@@ -162,10 +162,14 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-4">
-                        <img id="Umobile" src="images/up.png" alt="upmobile" class="img-responsive mobileControls">
-                        <img id="Umobile1" src="images/upClick.png" alt="upmobile" class="img-responsive mobileControls" style="display:none;">
+                         <div class="row upMissClick">
+                        <img id="Umobile" src="images/up.png" alt="upmobile" class="img-responsive mobileControls upDown">
+                        <img id="Umobile1" src="images/upClick.png" alt="upmobile" class="img-responsive mobileControls upDown" style="display:none;">
+                        </div>
+                         <div class="row downMissClick">
                         <img id="Dmobile" src="images/down.png" alt="downmobile" class="img-responsive mobileControls down">
                         <img id="Dmobile1" src="images/downClick.png" alt="downmobile" class="img-responsive mobileControls down" style="display: none;">
+                    </div>
                     </div>
                     <div class="col-xs-3 text-center">
                         <img src="images/raspberryMobile.png" alt="raspberry" class="img-responsive raspMob">
@@ -173,10 +177,14 @@
                        
                     </div> 
                     <div class="col-xs-5">
-                        <img id="Rmobile" src="images/right.png" alt="rightmobile" class="img-responsive mobileControls2 pull-right">
-                        <img id="Rmobile1" src="images/rightClick.png" alt="rightmobile" class="img-responsive mobileControls2 pull-right" style="display:none;">
-                        <img id="Lmobile" src="images/left.png" alt="leftmobile" class="img-responsive mobileControls2 pull-right">
-                        <img id="Lmobile1" src="images/leftClick.png" alt="leftmobile" class="img-responsive mobileControls2 pull-right" style="display:none;">
+                       
+                        <img id="Rmobile" src="images/right_opacity.png" alt="rightmobile" class="img-responsive mobileControls2 pull-right">
+                        <img id="Rmobile1" src="images/rightClick_opacity.png" alt="rightmobile" class="img-responsive mobileControls2 pull-right" style="display:none;">
+                     
+                       
+                        <img id="Lmobile" src="images/left_opacity.png" alt="leftmobile" class="img-responsive mobileControls2 pull-right">
+                        <img id="Lmobile1" src="images/leftClick_opacity.png" alt="leftmobile" class="img-responsive mobileControls2 pull-right" style="display:none;">
+                    
                     </div>
                 </div>
                 <div class="row">
@@ -256,7 +264,7 @@
                 <div class='col-xs-3 text-center '>
                     <h2 class='tryAgain'> Try Again? </h2>
                     <hr>
-                    <a href='/client/client.html'>  <img src='images/tryagain.png' alt='tryagain' class='img-responsive'></a>
+                    <a href='#' class="replay">  <img src='images/tryagain.png' alt='tryagain' class='img-responsive'></a>
                 </div>
             </div>
             <!-- portrait modus -->
@@ -280,7 +288,7 @@
 
                 <div class='col-md-4 text-center '>
                     <h1 class='tryAgain'> Try Again? </h1>
-                    <a href='/client/client.html'>  <img src='images/tryagain.png' alt='tryagain' class='img-responsive refresh'></a>
+                    <a href='#' class="replay">  <img src='images/tryagain.png' alt='tryagain' class='img-responsive refresh'></a>
                 </div>
             </div>
         </div>
@@ -293,7 +301,7 @@
             </div>
             <div class="row">
                 <div class=" col-xs-12 text-center">
-                    <h2>Congratulations (nickname), &nbsp; you have a new highscore! </h2>
+                    <h2>Congratulations <span id="nickname"></span>, &nbsp; you have a new highscore! </h2>
                     <h3> Leave your phone number below for a chance to win the Raspberry Pi 3! </h3>
 
 
@@ -305,12 +313,11 @@
                             return false" id="phoneInput">
                         <h3>  <label for="username"> Phonenumber </label></h3>
                         <input type="text" id="phonenumber" class="form-control" required>
-                        <input type='submit' value="Submit!" id='submit' class='form-control btn'>
+                        <input type='submit' value="Submit!" id='btnPlayerPhoneSubmit' class='form-control btn'>
                     </form> 
-
                 </div>
                 <div class="col-xs-12 text-center">
-                    <p> (If you choose not to leave your phone number, you<strong> can't</strong> win the price.) </p>
+                    <p> (If you choose not to leave your phone number, you<strong> can't</strong> win the price and your score will NOT be stored.) </p>
                 </div>
             </div>
         </div>
@@ -320,16 +327,47 @@
           en de juiste divs weer te geven. -->
           
         <script>
-            var click = false;
+            var nameClick = false;
+            var phoneClick = false;
+            var replayClick = false;
             var username;
-            var outputEl;
+           
+            
+            
+            function isNumber(n) {
+                return !isNaN(parseFloat(n)) && isFinite(n);
+            }
+            
+            $(".replay").on("click", function() {
+                console.log("btn clicked");
+                if(!replayClick && username.length > 0){
+                    setPlayerName(username);
+                    replayClick = true;
+                    $(".myCurrentPoints").text(0);
+                    window.scrollTo(0,document.body.scrollHeight);
+                    $('body').bind('touchmove', function(e){e.preventDefault()});
+                }
+            });
             
             $("#btnPlayerNameSubmit").on("click", function() {
                 console.log("btn clicked");
                 username = document.getElementById('username').value;
-                if(!click){
+                if(!nameClick && username.length > 0){
                     setPlayerName(username);
-                    click = true;
+                    nameClick = true;
+                    document.getElementById('nickname').innerText = document.createTextNode(username).textContent;
+                    
+                    window.scrollTo(0,document.body.scrollHeight);
+                    $('body').bind('touchmove', function(e){e.preventDefault()});
+                }
+            });
+                    
+            $("#btnPlayerPhoneSubmit").on("click", function() {
+                console.log("btn clicked");
+                var number = document.getElementById('phonenumber').value.trim();
+                if(!phoneClick && isNumber(number)){
+                    setPhoneNumber(number);
+                    phoneClick = true;
                     window.scrollTo(0,document.body.scrollHeight);
                     $('body').bind('touchmove', function(e){e.preventDefault()});
                 }
@@ -338,7 +376,7 @@
 
 
             //Script om de mobile knoppen van kleur te veranderen op touch
-            $("#Dmobile").on('touchstart', function () {
+            $("#Dmobile, .downMissClick").on('touchstart', function () {
                 
                 $("#Dmobile").hide();
                 $("#Dmobile1").show(); 
@@ -348,12 +386,12 @@
                 }
             });
 
-            $("#Dmobile").on('touchend', function () {
+            $("#Dmobile, .downMissClick").on('touchend', function () {
                 $("#Dmobile1").hide();
                 $("#Dmobile").show();
             });
 
-            $("#Umobile").on('touchstart', function () {
+            $("#Umobile, .upMissClick").on('touchstart', function () {
                 $("#Umobile").hide();
                 $("#Umobile1").show(); 
                 if(snake.direction !== 3) {
@@ -362,7 +400,7 @@
                 }
             });
 
-            $("#Umobile").on('touchend', function () {
+            $("#Umobile, .upMissClick").on('touchend', function () {
                 $("#Umobile1").hide();
                 $("#Umobile").show();
             });
@@ -394,7 +432,10 @@
                 $("#Rmobile1").hide();
                 $("#Rmobile").show();
             });
-
+            
+            $("body").on("contextmenu", "img", function(e) {
+                 return false;
+            });
 
             //kleuren van de knoppen op desktop veranderen on touch
              $("#down1").on('touchstart', function () {
@@ -456,6 +497,16 @@
                 $(".firstScreen").hide();
                 $(".wachtrij").hide();
                 $(".controller").show();
+                replayClick = false;
+            }
+            
+            function inTopScore() {
+                $('body').unbind('touchmove');
+                $(".gameOver").hide();
+                $(".topScore").show();
+                $(".firstScreen").hide();
+                $(".wachtrij").hide();
+                $(".controller").hide();
             }
             
             // laat gameover scherm zien

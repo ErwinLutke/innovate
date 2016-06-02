@@ -1,11 +1,11 @@
 
 var fs = require('fs');
 var obj;
-var player = { Naam: "henk", Score: 2, Nummer: "0612345678" };
+// var player = { Naam: "henk", Score: 2, Nummer: "0612345678" };
 
 
-exports.ReadJson = function(file){
-    obj = JSON.parse(fs.readFileSync(file, 'utf8'));
+exports.ReadJson = function(){
+    obj = JSON.parse(fs.readFileSync('score.json', 'utf8'));
 }
 
 function write(){
@@ -17,17 +17,17 @@ function write(){
     });
 }
 
-function updateScore(playerToUpdate){
-    if(player.Score > obj.Player1.Score){
+exports.updateScore = function(playerToUpdate){
+    if(playerToUpdate.Score > obj.Player1.Score){
         obj.Player3 = obj.Player2;
         obj.Player2 = obj.Player1;
         obj.Player1 = playerToUpdate;
     }
-    else if(player.Score > obj.Player2.Score || player.Score == obj.Player1.Score){
+    else if(playerToUpdate.Score > obj.Player2.Score || playerToUpdate.Score == obj.Player1.Score){
         obj.Player3 = obj.Player2;
         obj.Player2 = playerToUpdate;
     }
-    else if(player.Score > obj.Player3.Score || player.Score == obj.Player2.Score){
+    else if(playerToUpdate.Score > obj.Player3.Score || playerToUpdate.Score == obj.Player2.Score){
         obj.Player3 = playerToUpdate;
     }
     write();
@@ -43,8 +43,8 @@ exports.getNummers = function(){
     return playerNummers;
 }
 
-exports.isInTop3 = function(playerInTop3){
-    if(player.score > obj.Player3.Score){
+exports.isInTop3 = function(player){
+    if(player.Score > obj.Player3.Score){
         return true;
     }
     else{

@@ -1,10 +1,10 @@
 {
-  "name": "MP Snake",
-  "version": "0.0.2",
-  "description": "BETA",
+  "name": "Snake",
+  "version": "0.1.7",
+  "description": "MP BETA snake voor project innovate",
   "main": "server.js",
-  "repository": "",
-  "author": "",
+  "repository": "https://github.com/ErwinLutke/innovate",
+  "author": "INF1B",
   "dependencies": {
     "async": "~0.2.8",
     "express": "~4.13.4",

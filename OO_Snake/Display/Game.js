@@ -5,6 +5,8 @@ function Game (wGridth, hGridth) {
     this.snakeGrow = 1;
     this.maxFood = 1;
     
+    this.FPS_LIMIT = 1000/20;
+    
     this.canvas1 = document.getElementById('canvas1');
     this.ctx = this.canvas1.getContext('2d');
         
@@ -17,9 +19,9 @@ function Game (wGridth, hGridth) {
     this.canvas1.height = window.innerHeight;
     this.canvas1.width = window.innerWidth;
     
-    this.wGridth = 100
+    this.wGridth = 98;
     //this.canvas.width / 20 |0;
-    this.hGridth = 50
+    this.hGridth = 50;
     //this.canvas.height / 20 |0;
     
     // this.sizeX =  100//80 ///2 | 0
@@ -40,8 +42,8 @@ function Game (wGridth, hGridth) {
     // this.canvas_fg.height = this.sizeY * ( this.cellSize + this.cellSpacing ) + this.cellSpacing;
     // this.canvas_fg.width = this.sizeX * ( this.cellSize + this.cellSpacing ) + this.cellSpacing;
    
-    this.canvas_bg.height = (6 + this.sizeY) * ( this.cellSize + this.cellSpacing) + this.cellSpacing; //8
-    this.canvas_bg.width = (6 + this.sizeX) * ( this.cellSize + this.cellSpacing) + this.cellSpacing;
+    this.canvas_bg.height = (14 + this.sizeY) * ( this.cellSize + this.cellSpacing) + this.cellSpacing;
+    this.canvas_bg.width = (14 + this.sizeX) * ( this.cellSize + this.cellSpacing) + this.cellSpacing;
     
     this.canvas1.style.top  = this.canvas_fg.style.top = (window.innerHeight - this.canvas1.height) / 2 +"px";
     this.canvas1.style.left = this.canvas_fg.style.left = (window.innerWidth - this.canvas1.width) / 2 +"px";

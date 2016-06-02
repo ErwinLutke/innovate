@@ -13,10 +13,12 @@ var util = require("util"),
 var app = express(),                  // create express instance
     server = http.createServer(app),  // create the http server from express
     io = socketio(server),            // setup socket io to listen to the server
-    port = 8081;
+    port = 8081,
     // process.env.PORT,          // stores port to listen on
     ip = process.env.IP;              // stores the ip
     
+var password = 123;
+
 // setup namespace for different sockets
 var nspDisplay = io.of('/display');
 var nspClient = io.of('/client');
@@ -24,6 +26,7 @@ var nspClient = io.of('/client');
 // gives access to game and client files
 app.use('/client', express.static('Client'));
 app.use('/display', express.static('Display'));
+app.use('/', express.static('Client'));
 //app.use('/js', express.static('js'));
 
 // request to the root of dir (homepage) send the request to client index
@@ -40,13 +43,17 @@ var players;      // array of connected players
 var waitingLine;  // stores players if no spot is free
 var maxPlayers;   // int - players allowed to play at the same time
 var topScores;    // stores scores of top Players
+
+var tempPlayer;
+
   
 /**************************************************
 ** GAME INITIALISATION
 **************************************************/
 function init() { 
-    scoresDB.ReadJson('./DB/score.json');   // loads the scores
+    scoresDB.ReadJson();   // loads the scores
     topScores = scoresDB.getScores();    // get scores and names of top 3 players
+    tempPlayer = [];
     
     server.listen(port, ip);        // start up the game server
     util.log('Started game server: listening on port:' + port + ' on ip: ' + ip );
@@ -84,7 +91,7 @@ function onSocketConnectionDisplay(display) {
         players = [];
         waitingLine = [];
         display.on("recieveScore", onRecieveScore);
-        // display.on("storeScore");
+        
       	display.on("spotOpen", onSpotOpen);  	            // Listen if Display has open spot because a player died
         display.on("disconnect", onDisplayDisconnect);  	// Listen for display disconnection
     }
@@ -100,7 +107,7 @@ function onRecieveScore(data) {
     var player = playerById(data.id);
     var playerScore = data.points;
     
-    players[player.pos].score = playerScore;
+    players[player.pos].Score = playerScore;
    
     io.nsps['/client'].sockets[data.id].emit("sendScore", playerScore);
   	util.log("player score: " + playerScore);
@@ -114,13 +121,14 @@ function onSpotOpen(removedPlayerId) {
        // return
     }
     if(player.play === 1) {
-        // if(scoresDB.isInTop3(players[player])) {
-        //     scoresDB.updateScore(players[player]);
-        //     topScores = scoresDB.getScores();
-        // }
-
+        if(scoresDB.isInTop3(players[player.pos])) {
+            tempPlayer.push(players[player.pos]);
+            io.nsps['/client'].sockets[removedPlayerId].emit("topScore", topScores);
+        } 
+        else {
+            io.nsps['/client'].sockets[removedPlayerId].emit("snakeDead", topScores);
+        }
         players.splice(player.pos, 1);
-        io.nsps['/client'].sockets[removedPlayerId].emit("replay", topScores);
     }
     
     if (waitingLine.length > 0) {
@@ -152,14 +160,29 @@ function onSocketConnectionClient(client) {
     client.on("setPlayerName", onSetPlayerName);
   	client.on("disconnect", onClientDisconnect);    // Listen for client disconnected
     client.on("movePlayer", onMovePlayer);	        // Listen for move player message
+    
+    client.on("winPrice", onWinPrice);	            // store score of player
+}
+
+function onWinPrice(number){
+    var player = playerById(this.id);
+    
+    if(player.play === 2){
+        tempPlayer[player.pos].Nummer = number;
+        scoresDB.updateScore(tempPlayer[player.pos]);
+        topScores = scoresDB.getScores();
+        io.nsps['/client'].sockets[this.id].emit("snakeDead", topScores);
+        util.log("score saved, player:" + player.Naam + "\n\rscore: " + player.Score);
+        tempPlayer.splice(player.pos, 1);
+    }
 }
 
 function onSetPlayerName(playerName) {
     util.log("new player: " + playerName);
     
     // Create a new player
-    var newPlayer = {id: this.id, name: playerName, score: 0};
-    util.log(newPlayer.name);
+    var newPlayer = {id: this.id, Naam: playerName, Score: 0, Nummer: ""};
+    util.log(newPlayer.Naam);
     // Place player in game or waitingLine 
     if(players.length < maxPlayers) {
         players.push(newPlayer);                    // Add new player to the players array
@@ -195,8 +218,11 @@ function onClientDisconnect() {
         players.splice(removePlayer.pos, 1);
         nspDisplay.emit("removePlayer", {id: this.id});
     }
-    else {
+    else if (removePlayer.play === 0) {
         waitingLine.splice(removePlayer.pos, 1);
+    }
+    else {
+        tempPlayer.splice(removePlayer, 1);
     }
   	
   
@@ -227,7 +253,7 @@ function onMovePlayer(dir) {
 /**************************************************
 ** HELPER FUNCTIONS
 **************************************************/
-// Find player by ID: Checks players array and waitinglne array
+// Find player by ID: Checks players array and waitinglne array and tempPlayer array
 function playerById(id) {
   	for (var i = 0; i < players.length; i++) {
   		  if (players[i].id == id) {
@@ -240,10 +266,16 @@ function playerById(id) {
   			    return {pos: i, play: 0};
   		  }
   	}
+  	  	
+  	for (var i = 0; i < tempPlayer.length; i++) {
+  		  if (tempPlayer[i].id == id) {
+  			    return {pos: i, play: 2};
+  		  }
+  	}
   	return false;
 }
 
 /**************************************************
-** START GAME
+** START SERVER
 **************************************************/
 init();

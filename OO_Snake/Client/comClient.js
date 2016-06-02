@@ -16,7 +16,9 @@ var setEventHandlers = function() {
 	socket.on("disconnect", onSocketDisconnect);	// Socket disconnection
 	socket.on("playGame", onPlayGame);				// recieve GO to play the game
 	socket.on("waitingLine", onWaitingLine);		// recieve message to be in waiting line
-	socket.on("replay", onReplay);					// recieve message you dead
+	socket.on("snakeDead", onSnakeDead);					// recieve message you dead
+	
+	socket.on("topScore", onTopScore);				// recieve message you dead WITH highscore!
 	
 	//scores
 	socket.on("sendScore", onSendScore); // get the current client score from server
@@ -50,11 +52,12 @@ function onSendScore(score) {
 	updateMyScore(score);
 }
 
-function onTopScores(scores) {
+function onTopScore() {
+	inTopScore();
 	console.log("onTopScores function");
 }
 
-function onReplay(scores) { // death - view highscore, own score and replay button ( remember name)
+function onSnakeDead(scores) { // death - view highscore, own score and replay button ( remember name)
 	showTopScores(scores);
 	// console.log(scores);
 	// console.log(typeof scores);
@@ -73,6 +76,13 @@ function setPlayerName(name) {
 	console.log("setplayername functie called");
 	socket.emit("setPlayerName", name);
 }
+
+function setPhoneNumber(number) {
+	//misschien nog wat checks toevoegen?
+	console.log("winPrice functie called");
+	socket.emit("winPrice", number);
+}
+
 
 /**************************************************
 ** START COMMUNICATION

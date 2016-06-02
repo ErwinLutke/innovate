@@ -9,7 +9,8 @@
         html, body { 
             width:100%; 
             height:100%; 
-            background-color: #000000;
+            /*background-color: #000000;*/
+            background-color: #7AC67A;
             text-align:center;
         } /* just to be sure these are full screen*/
 
@@ -39,11 +40,6 @@
             font-size:150%;
             margin-left:auto;
         }
-        #fps {
-            top:0;
-            position: fixed;
-            right:0;
-        }
         /* to show the canvas bounds */
          #canvas_bg {
             /*background-color: #262626;*/
@@ -55,11 +51,10 @@
     <body>
         
 
-        <img id="shc" src="img/shc.png" width="100px;"></img>
-        <div id="huisjes"></div>
+        <!--<img id="shc" src="img/shc.png" width="100px;"></img>-->
+        <!--<div id="huisjes"></div>-->
         
-        <p id="version">MP-Beta: 0.05</p>
-        <p id="fps"><bold>??? FPS</bold></p>
+        <p id="version">MP-Beta: 0.1.9</p>
         
         <canvas id="canvas1" style="z-index: 3;"></canvas>
         <canvas id="canvas_bg" style="z-index: 1;"></canvas>
@@ -113,7 +108,6 @@
         <script type="text/javascript" src="Game.js"></script>
         <script type="text/javascript" src="Snake.js"></script>
 	    <script type="text/javascript" src="comDisplay.js"></script>
-	    <script type="text/javascript" src="Stats.js"></script>
 	    
 	    <script type="text/javascript" src="initGame.js"></script>
     </body>

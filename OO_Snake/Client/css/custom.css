@@ -33,7 +33,7 @@ body {
     width: 100%;
     margin: 0 auto;
     padding: 0 auto;
-    background: url(../images/snakesBgBlue.png) no-repeat center center fixed;
+    background: url(../images/snakesBgGrey.png) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -188,14 +188,14 @@ h1, h2{
 }
 
 .mobileControls{
-    max-height: 110px;
+    max-height: 150px;
     margin-left: 20px;
 }
 
 .mobileControls2{
-    max-height: 110px;
-    margin-top: 85px;
-   
+    max-height: 180px;
+    margin-top: 0px;
+   float: right;
 }
 
 #touch{
@@ -369,17 +369,58 @@ h1, h2{
     }
 
 }
-@media screen and (max-width: 575px) {
+@media screen and (max-width: 585px) {
  
      .mobileControls{
-        max-height: 80px;
+        max-height: 110px;
         margin-left: 20px;
     }
 
     .mobileControls2{
-        max-height: 80px;
-        margin-top: 55px;
+        max-height: 165px;
+        margin-top: 0px;
+    }
+    
+    .raspMob{
+        margin-top: 60px;
     }
     
     }   
+    
+    @media screen and (max-width: 542px) {
+ 
+     .mobileControls{
+        max-height: 85px;
+        margin-left: 20px;
+    }
+
+    .mobileControls2{
+        max-height: 135px;
+        margin-top: 0px;
+    }
+    
+    .raspMob{
+        margin-top: 60px;
+    }
+    
+    }   
+    
+     @media screen and (max-width: 457px) {
+ 
+     .mobileControls{
+        max-height: 75px;
+        margin-left: 20px;
+    }
+
+    .mobileControls2{
+        max-height: 120px;
+        margin-top: 0px;
+    }
+    
+    .raspMob{
+        margin-top: 50px;
+    }
+    
+    }   
+
 

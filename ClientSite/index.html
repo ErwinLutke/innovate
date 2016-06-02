@@ -35,7 +35,11 @@
 
         <!-- Bootstrap Core JavaScript -->
         <script src="js/bootstrap.min.js"></script>
-
+        
+        <!-- socket.io / control-logica/ communicatie -->
+        <script src="/socket.io/socket.io.js"></script>
+	    <script src="comClient.js"></script>
+        <script src="Controller.js"></script>
 
 
 
@@ -97,7 +101,8 @@
 
                         <img id="up1" src="images/up.png" alt='up'  class="img-responsive upButton" onmousedown="changeUp1()"> 
                         <img id="up2" src="images/upClick.png" alt='up'  class="img-responsive upButton" onmouseup="changeUp2()" style="display:none;">
-
+           
+            <!-- CONTROLS VOOR DESKTOP-->
                         <div class="controls">
                             <img id="left1" src="images/left.png" alt='left' class="img-responsive button" onmousedown="changeLeft1()">
                             <img id="left2" src="images/leftClick.png" alt='left' class="img-responsive button" onmouseup="changeLeft2()" style="display:none;">
@@ -106,6 +111,7 @@
                             <img id="right1" src="images/right.png" alt='right' class="img-responsive button" onmousedown="changeRight1()">
                             <img id="right2" src="images/rightClick.png" alt='right' class="img-responsive button" onmouseup="changeRight2()" style="display:none;">
                         </div>
+                        
                     </div>
                     <div class="col-xs-4 text-center">
                         <h1 class="big"> Eat fruit! </h1>
@@ -224,9 +230,9 @@
                     <img src='images/Crown.png' alt='kroon' class='img-responsive crown'>
                     <hr>
                     <h2> Top scores: </h2>
-                    <h3> Jan - 34531 </h3>
-                    <h3> Piet - 25435 </h3>
-                    <h3> Jan  - 23453 </h3>
+                    <h3 id="highscore1"> Jan - 34531 </h3>
+                    <h3 id="highscore2"> Piet - 25435 </h3>
+                    <h3 id="highscore3"> Jan  - 23453 </h3>
                 </div>
                 <div class='col-xs-1'></div>
                 <div class='col-xs-3 text-center '>
@@ -296,11 +302,25 @@
           en de juiste divs weer te geven. -->
         <script>
 
+        function Snake() {
+            this.direction = false;
+        }
+            
+        
+        var snake = new Snake();
+        
+        var controller = new Controller(snake);
+        
 
             //Script om de mobile knoppen van kleur te veranderen op touch
             $("#Dmobile").on('touchstart', function () {
+                
                 $("#Dmobile").hide();
-                $("#Dmobile1").show();
+                $("#Dmobile1").show(); 
+                if(snake.direction !== 2) {
+                    controller.command("down"); // Up 
+                    sendDirection();
+                }
             });
 
             $("#Dmobile").on('touchend', function () {
@@ -310,7 +330,11 @@
 
             $("#Umobile").on('touchstart', function () {
                 $("#Umobile").hide();
-                $("#Umobile1").show();
+                $("#Umobile1").show(); 
+                if(snake.direction !== 3) {
+                    controller.command("up"); 
+                    sendDirection();
+                }
             });
 
             $("#Umobile").on('touchend', function () {
@@ -320,7 +344,11 @@
 
             $("#Lmobile").on('touchstart', function () {
                 $("#Lmobile").hide();
-                $("#Lmobile1").show();
+                $("#Lmobile1").show(); 
+                if(snake.direction !== 0) {
+                    controller.command("left");
+                    sendDirection();
+                }
             });
 
             $("#Lmobile").on('touchend', function () {
@@ -330,7 +358,11 @@
 
             $("#Rmobile").on('touchstart', function () {
                 $("#Rmobile").hide();
-                $("#Rmobile1").show();
+                $("#Rmobile1").show(); 
+                if(snake.direction !== 1) {
+                    controller.command("right");
+                    sendDirection();
+                }
             });
 
             $("#Rmobile").on('touchend', function () {
@@ -341,43 +373,35 @@
 
             //kleuren van de knoppen op desktop veranderen on touch
              $("#down1").on('touchstart', function () {
-                $("#down1").hide();
-                $("#down2").show();
+                 changeDown1()
             });
 
             $("#down1").on('touchend', function () {
-                $("#down2").hide();
-                $("#down1").show();
+                 changeDown2()
             });
 
             $("#up1").on('touchstart', function () {
-                $("#up1").hide();
-                $("#up2").show();
+                 changeUp1()
             });
 
             $("#up1").on('touchend', function () {
-                $("#up2").hide();
-                $("#up1").show();
+                changeUp2()
             });
 
             $("#left1").on('touchstart', function () {
-                $("#left1").hide();
-                $("#left2").show();
+               changeLeft1()
             });
 
             $("#left1").on('touchend', function () {
-                $("#left2").hide();
-                $("#left1").show();
+                changeLeft2()
             });
 
             $("#right1").on('touchstart', function () {
-                $("#right1").hide();
-                $("#right2").show();
+               changeRight1()
             });
 
             $("#right1").on('touchend', function () {
-                $("#right2").hide();
-                $("#right1").show();
+               changeRight2()
             });
 
             
@@ -402,6 +426,10 @@
             function changeUp1() {
                 $("#up1").hide();
                 $("#up2").show();
+                if(snake.direction !== 3) {
+                    controller.command("up"); // Up 
+                    sendDirection();
+                }
             }
 
             function changeUp2() {
@@ -412,6 +440,10 @@
             function changeLeft1() {
                 $("#left1").hide();
                 $("#left2").show();
+                if(snake.direction !== 0) {
+                    controller.command("left"); // left 
+                    sendDirection();
+                }
             }
 
             function changeLeft2() {
@@ -422,6 +454,10 @@
             function changeDown1() {
                 $("#down1").hide();
                 $("#down2").show();
+                if(snake.direction !== 2) {
+                    controller.command("down");
+                    sendDirection();
+                }
             }
 
             function changeDown2() {
@@ -432,19 +468,37 @@
             function changeRight1() {
                 $("#right1").hide();
                 $("#right2").show();
+                if(snake.direction !== 1) {
+                    controller.command("right");
+                    sendDirection();
+                }
             }
 
             function changeRight2() {
                 $("#right2").hide();
                 $("#right1").show();
             }
+            
+            function sendDirection() {
+                if (controller.allowMove) {
+                    socket.emit("movePlayer", snake.direction);
+                    controller.allowMove = false;
+                }
+            }
+            
+            
+            
+            
+            
             document.onkeydown = function (e) {
                 switch (e.keyCode) {
                     case 37:
                         changeLeft1();
                         break;
                     case 38:
-                        changeUp1();
+                        
+                            changeUp1();
+                        
                         break;
                     case 39:
                         changeRight1();

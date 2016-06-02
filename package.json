@@ -1,7 +1,7 @@
 {
-  "name": "snake",
-  "version": "0.0.0",
-  "description": "multiplayer...",
+  "name": "MP Snake",
+  "version": "0.0.1",
+  "description": "BETA",
   "main": "server.js",
   "repository": "",
   "author": "",

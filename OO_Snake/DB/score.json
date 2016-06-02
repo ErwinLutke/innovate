@@ -1,17 +1,17 @@
 {
   "Player1": {
     "Naam": "Leon",
-    "Score": 750,
+    "Score": 10,
     "Nummer": "0632165489"
   },
   "Player2": {
     "Naam": "Jasper",
-    "Score": 650,
+    "Score": 8,
     "Nummer": "0632165489"
   },
   "Player3": {
     "Naam": "Jan",
-    "Score": 500,
+    "Score": 4,
     "Nummer": "0623958378"
   }
 }
