@@ -1,20 +1,14 @@
-{
-  "Player1": {
+[
+  {
     "id": "/client#LTXvt8EQRJ-3pnSHAAAe",
     "Naam": "Jasper",
     "Score": 353,
     "Nummer": ""
   },
-  "Player2": {
+  {
     "id": "/client#jOKRHe3jQAfNbDDaAAA6",
     "Naam": "Nathan",
     "Score": 312,
     "Nummer": ""
-  },
-  "Player3": {
-    "id": "/client#jGqh05bTnq4vx15CAAAQ",
-    "Naam": "Ik ",
-    "Score": 14,
-    "Nummer": ""
   }
-}
+]

@@ -193,7 +193,7 @@ var shoot = sounds["sounds/shoot.wav"],
     bounce = sounds["sounds/bounce.mp3"];
 
 */
-
+function Audio(){
 var sounds = {
   //Properties to help track the assets being loaded.
   toLoad: 0,
@@ -968,7 +968,7 @@ function impulseResponse(duration, decay, reverse, actx) {
   return impulse;
 }
 
-
+}
 /*
 keyboard
 --------

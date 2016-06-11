@@ -13,18 +13,22 @@ var util = require("util"),
 var app = express(),                  // create express instance
     server = http.createServer(app),  // create the http server from express
     io = socketio(server),            // setup socket io to listen to the server
-    port = 8081,
-    // process.env.PORT,          // stores port to listen on
+    //port = 8081,
+    port = process.env.PORT,              // stores port to listen on
     ip = process.env.IP;              // stores the ip
     
-var password = 123;
-
+    
+    
 // setup namespace for different sockets
 var nspDisplay = io.of('/display');
 var nspClient = io.of('/client');
+var nspAdmin = io.of('/admin');
+
+var password = "";
     
 // gives access to game and client files
 app.use('/client', express.static('Client'));
+app.use('/admin', express.static('Client'));
 app.use('/display', express.static('Display'));
 app.use('/', express.static('Client'));
 //app.use('/js', express.static('js'));
@@ -44,8 +48,15 @@ var waitingLine;  // stores players if no spot is free
 var maxPlayers;   // int - players allowed to play at the same time
 var topScores;    // stores scores of top Players
 
-var tempPlayer;
+var allScoresB;
 
+var playMusic = 1;
+
+var tempPlayer;     // stores the player sounds
+
+var OccupiedColors = [];    //sets color for the snake and players
+
+//var AIs = 0;
   
 /**************************************************
 ** GAME INITIALISATION
@@ -60,7 +71,7 @@ function init() {
     
     players = [];                   // create empty array for storing the players
     waitingLine = [];               // create empty array for storing the waiting players
-    maxPlayers = 5 ;                // number of allowed players
+    maxPlayers = 8 ;                // number of allowed players
     
     nspDisplay.max_connections = 1;         // max number of display allowed
     nspDisplay.current_connections = 0;     // current number of displays
@@ -68,9 +79,43 @@ function init() {
     // setup the event handling
     setEventHandlersDisplay();
     setEventHandlersClient();
-    
+    setEventHandlersAdmin();
 }
 
+var setEventHandlersAdmin = function() {
+    nspAdmin.on("connection", onSocketConnectionAdmin);
+};
+
+function onSocketConnectionAdmin (socket) {
+    scoresDB.sendScoresAdmin(socket);
+    socket.on("disconnect", onAdminDisconnect);
+    socket.on("checkPassword", onCheckPassword);
+    socket.on("saveAllScores", onSaveAllScores);
+}
+
+function onAdminDisconnect() {
+}
+
+function onSaveAllScores(scores) {
+    scoresDB.saveScoresAdmin(scores);
+}
+
+function onCheckPassword(pass){
+    //
+    if (pass === password){
+        var numbers = scoresDB.getNummers();
+        this.emit("passwordSucces", {scores: topScores, phone: numbers, music: playMusic});
+        this.on("music", onMusic);
+    }
+    else {
+        this.emit("passwordFail");
+    }
+}
+
+function onMusic(toggle) {
+    playMusic = toggle;
+    nspDisplay.emit("music", toggle);
+}
 /**************************************************
 ** GAME EVENT HANDLERS - DISPLAY
 **************************************************/
@@ -79,7 +124,7 @@ var setEventHandlersDisplay = function() {
 };
 
 function onSocketConnectionDisplay(display) {
-  	util.log("New display has connected: " + display.id);
+  	//util.log("New display has connected: " + display.id);
   	
   	// checks if max number displays is reached and disconnects client if its true
     if (nspDisplay.current_connections >= nspDisplay.max_connections) {
@@ -94,11 +139,12 @@ function onSocketConnectionDisplay(display) {
         
       	display.on("spotOpen", onSpotOpen);  	            // Listen if Display has open spot because a player died
         display.on("disconnect", onDisplayDisconnect);  	// Listen for display disconnection
+     //   util.log("Game has connected: " + display.id);
     }
 }
 
 function onDisplayDisconnect() {
-  	util.log("Display has disconnected: " + this.id);
+  //	util.log("Display has disconnected: " + this.id);
   	nspDisplay.current_connections--;
 }
 
@@ -108,25 +154,31 @@ function onRecieveScore(data) {
     var playerScore = data.points;
     
     players[player.pos].Score = playerScore;
-   
+    var player2admin = players[player.pos];
+    
     io.nsps['/client'].sockets[data.id].emit("sendScore", playerScore);
-  	util.log("player score: " + playerScore);
+    nspAdmin.emit("updatePlayerScores", player2admin);
 }
 
-function onSpotOpen(removedPlayerId) {
-    var player = playerById(removedPlayerId);
+function onSpotOpen(removedPlayer) {
+    var player = playerById(removedPlayer.id);
     
     if (player === false) {
-        util.log("onSpotOpen: player not found");
+      //  util.log("onSpotOpen: player not found");
        // return
     }
     if(player.play === 1) {
+        //remove color
+        var indexToRemove = OccupiedColors.indexOf(removedPlayer.color);
+        OccupiedColors.splice(indexToRemove, 1);
+      //  console.log("index to remove: " + indexToRemove + ", value: " + splice + ", color: " + removedPlayer.color);
+        
         if(scoresDB.isInTop3(players[player.pos])) {
             tempPlayer.push(players[player.pos]);
-            io.nsps['/client'].sockets[removedPlayerId].emit("topScore", topScores);
+            io.nsps['/client'].sockets[removedPlayer.id].emit("topScore", topScores);
         } 
         else {
-            io.nsps['/client'].sockets[removedPlayerId].emit("snakeDead", topScores);
+            io.nsps['/client'].sockets[removedPlayer.id].emit("snakeDead", topScores);
         }
         players.splice(player.pos, 1);
     }
@@ -134,7 +186,8 @@ function onSpotOpen(removedPlayerId) {
     if (waitingLine.length > 0) {
         var newPlayer = waitingLine.shift();
         players.push(newPlayer);
-        nspDisplay.emit("newPlayer", newPlayer);
+        var sColor = giveColor();
+        nspDisplay.emit("newPlayer", { player: newPlayer, color: sColor });
         
         io.nsps['/client'].sockets[newPlayer.id].emit("playGame");
         if (waitingLine.length > 0) {
@@ -145,17 +198,25 @@ function onSpotOpen(removedPlayerId) {
     }
 }
 
+/*function addAI() {
+    if(players.length <= 1) {
+        nspDisplay.emit("AddAI");
+        AIs++;
+    }
+}*/
+
 
 /**************************************************
 ** GAME EVENT HANDLERS - CLIENT
 **************************************************/
 var setEventHandlersClient = function() {
     nspClient.on("connection", onSocketConnectionClient);
+    //addAI();
 };
 
 
 function onSocketConnectionClient(client) {
-  	util.log("New Client has connected: " + client.id);
+  //	util.log("New Client has connected: " + client.id);
     // util.log("playerArray check:  -- " + players[0].id);
     client.on("setPlayerName", onSetPlayerName);
   	client.on("disconnect", onClientDisconnect);    // Listen for client disconnected
@@ -164,7 +225,7 @@ function onSocketConnectionClient(client) {
     client.on("winPrice", onWinPrice);	            // store score of player
 }
 
-function onWinPrice(number){
+function onWinPrice(number) {
     var player = playerById(this.id);
     
     if(player.play === 2){
@@ -172,28 +233,29 @@ function onWinPrice(number){
         scoresDB.updateScore(tempPlayer[player.pos]);
         topScores = scoresDB.getScores();
         io.nsps['/client'].sockets[this.id].emit("snakeDead", topScores);
-        util.log("score saved, player:" + player.Naam + "\n\rscore: " + player.Score);
+      //  util.log("score saved, player:" + player.Naam + "\n\rscore: " + player.Score);
         tempPlayer.splice(player.pos, 1);
     }
 }
 
 function onSetPlayerName(playerName) {
-    util.log("new player: " + playerName);
+    //util.log("new player: " + playerName);
     
     // Create a new player
     var newPlayer = {id: this.id, Naam: playerName, Score: 0, Nummer: ""};
-    util.log(newPlayer.Naam);
+    //util.log(newPlayer.Naam);
     // Place player in game or waitingLine 
     if(players.length < maxPlayers) {
+        var sColor = giveColor();
         players.push(newPlayer);                    // Add new player to the players array
-        nspDisplay.emit("newPlayer", newPlayer);    // Broadcast new player to gameDisplay
-        this.emit("playGame");
+        nspDisplay.emit("newPlayer", { player: newPlayer, color: sColor });    // Broadcast new player to gameDisplay
+        this.emit("playGame", sColor);
         
     }
     else {
         waitingLine.push(newPlayer);                // Add new player to the waiting array
         var waitingPos = waitingLine.length;        // get the waiting position
-        util.log("in wait");
+     //   util.log("in wait");
         // send waiting position to this player
         //nspClient.sockets.connected[newPlayer.id]
         this.emit("waitingLine", waitingPos);
@@ -202,14 +264,14 @@ function onSetPlayerName(playerName) {
 
 // Socket client has disconnected
 function onClientDisconnect() {
-  	util.log("Player has disconnected: " + this.id);
+  	//util.log("Player has disconnected: " + this.id);
   
     // find index position in array of the player by id
   	var removePlayer = playerById(this.id);
   	
   	// Player not found
   	if (removePlayer === false) {
-        util.log("onClientDisconnect: Player not found: " + this.id);
+     //   util.log("onClientDisconnect: Player not found: " + this.id);
         return;
   	}
   
@@ -225,7 +287,8 @@ function onClientDisconnect() {
         tempPlayer.splice(removePlayer, 1);
     }
   	
-  
+  	//addAI
+    //addAI();
   	// Broadcast removed player to connected socket clients
   	// only if in player array, not finished
 }
@@ -234,12 +297,12 @@ function onClientDisconnect() {
 function onMovePlayer(dir) {
 	// Find player in array
 
-    util.log("player movement " + dir );
+    //util.log("player movement " + dir );
 	var movePlayer = playerById(this.id);
 	
 	// Player not found
 	if (movePlayer === false) {
-		util.log("onMovePlayer: Player not found: "+ this.id);
+	//	util.log("onMovePlayer: Player not found: "+ this.id);
 		return;
 	}
 	
@@ -274,6 +337,41 @@ function playerById(id) {
   	}
   	return false;
 }
+
+
+function giveColor() {
+    var color = Math.floor((Math.random() * 9) + 1);
+    //var timeOutCount = 0;
+    var IfstatementUsed = "None";
+    //give random color if not more than 6 players in the game, else give the next color
+    if(OccupiedColors.length < 6) {
+        while(OccupiedColors.indexOf(color) != -1) {// && timeOutCount < 25
+            color = Math.floor((Math.random() * 9) + 1);
+            //timeOutCount++;
+            IfstatementUsed = "Random";
+        }
+    } else {
+        color = -1;
+        do {
+            color++;
+            IfstatementUsed = "Fixed";
+        }
+        while(OccupiedColors.indexOf(color) != -1 && color < 9)
+    }
+    
+  //  console.log(IfstatementUsed + ", " + color);
+    OccupiedColors.push(color);
+    OccupiedColors.forEach(function(value, index) {
+     //   console.log("Index: " + index + ", Value: " + value);
+    })
+    
+    
+    return color;
+}
+
+
+
+
 
 /**************************************************
 ** START SERVER

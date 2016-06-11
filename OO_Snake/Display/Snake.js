@@ -2,21 +2,27 @@
 function Snake(id) {
     id = id || null;
     this.length = 0;
-    this.color =  Math.floor((Math.random() * 9) + 1);
+    this.color = 1;
     this.direction = false;
     
     this.segments = [];
     this.moves = [];
     
+    this.prevH = 0;
+    this.prevT = 0;
+    
+    this.deathTime = 60;
+    
+    this.dead = false;
+    
     this.clientID = id; //een snake is gekoppeld aan een client
     this.nextToCollision = ""; //kan zijn: right, left, front | Checkt bij elke beweging of hij ergens tegen aan botst
-    // this.addColor();
     this.points = 2;
     this.totalCaughtFood = 0;
     this.totalCaughtSnakeFood = 0;
+    
     this.isAI = false;
     this.AIParent = false;
-  //  this.remove = false;
 }
 
 Snake.prototype.spawnSnake = function(startX, startY) {
@@ -28,7 +34,7 @@ Snake.prototype.spawnSnake = function(startX, startY) {
         this.segments[i] = {x : (startX - 1), y : startY};
     }
 };
-
+//voegt een stuk van de snakebody toe
 Snake.prototype.addSegment = function(amountOfSegments) {
     var sl = this.length;
     for (var i = 0; i < amountOfSegments; i++) {
@@ -40,58 +46,23 @@ Snake.prototype.addSegment = function(amountOfSegments) {
 
 
 Snake.prototype.moveSnake = function() {
-    // var speed = 1;
-    // zodra op een toets wordt gedrukt gaat de slang bewegen
-    var hx = this.segments[0].x;
-    var hy = this.segments[0].y;
+    // slaat hoofd posiie op van de slang
+    this.prevH = this.segments[0];
 
+    // zodra op een knop wordt gedrukt gaat de slang bewegen
     if(this.direction !== false) {
         if (this.moves.length > 0) {
             this.direction = this.moves.shift();
-            if (this.moves.length > 2) {
-                this.moves.splice(2, this.moves.length); 
+            if (this.moves.length > 0) {
+                this.moves.splice(1, this.moves.length); 
             }
         }
+        if(this.direction === 0) this.segments.unshift({x: this.prevH.x + 1, y: this.prevH.y});
+        if(this.direction === 1) this.segments.unshift({x: this.prevH.x - 1, y: this.prevH.y});
+        if(this.direction === 2) this.segments.unshift({x: this.prevH.x, y: this.prevH.y - 1});
+        if(this.direction === 3) this.segments.unshift({x: this.prevH.x, y: this.prevH.y + 1});
         
-        if(this.direction === 0) this.segments.unshift({x: hx + 1, y: hy});
-        if(this.direction === 1) this.segments.unshift({x: hx - 1, y: hy});
-        if(this.direction === 2) this.segments.unshift({x: hx, y: hy - 1});
-        if(this.direction === 3) this.segments.unshift({x: hx, y: hy + 1});
-        this.segments.pop();
-
+        this.prevT = this.segments.pop();
     }   
 };
 
-Snake.prototype.addColor = function() {
-    var rand = Math.floor((Math.random() * 9) + 1); // 1 t/m 8
-    this.color = rand;
-    // switch(rand) {
-    //     case 1:
-    //         this.color = "red";
-    //         break;
-    //     case 2:
-    //         this.color = "orange";
-    //         break;
-    //     case 3:
-    //         this.color = "yellow";
-    //         break;
-    //     case 4:
-    //         this.color = "cyan";
-    //         break;
-    //     case 5:
-    //         this.color = "magenta";
-    //         break;
-    //     case 6:
-    //         this.color = "pink";
-    //         break;
-    //     case 7:
-    //         this.color = "greenyellow";
-    //         break;
-    //     case 8:
-    //         this.color = "white";
-    //         break;
-    // }
-};
-
-//log de positie en lengte van de snake
-//console.log(snake.segments[0], snake.length);

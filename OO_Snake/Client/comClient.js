@@ -37,10 +37,8 @@ function onSocketDisconnect() {
 	console.log("Disconnected from socket server");
 }
 
-function onPlayGame() {
-	// <<< IMPLEMENT: Get color here too >>>
-	
-	showHide();
+function onPlayGame(color) {
+	showHide(color);
 }
 
 function onWaitingLine(pos) {
@@ -59,7 +57,6 @@ function onTopScore() {
 
 function onSnakeDead(scores) { // death - view highscore, own score and replay button ( remember name)
 	showTopScores(scores);
-	// console.log(scores);
 	// console.log(typeof scores);
 	gameOver();
 }

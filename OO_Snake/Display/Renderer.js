@@ -1,42 +1,45 @@
 function Renderer (game) {
         this.game = game;
         this.ctx = game.ctx;
+        this.ctx_fg = game.ctx_fg;
         this.ctx_bg = game.ctx_bg;
         
         this.imgSnakeHeads = [];
         this.imgSnakeBodies = [];
         
         this.loadSnakeImages();
+        
+        // MAKE IT BEAUTIFUL
         this.drawBackground();
+        // this.drawCells();
 }
 
 Renderer.prototype.clearLayer = function (canvas) {
     if(canvas === "bg") {
-        this.ctx = this.game.ctx_bg;
+        this.game.ctx_bg.clearRect(0, 0, this.game.canvas_bg.width, this.game.canvas_bg.height);
     }
     else {
-        this.ctx = this.game.ctx;
+        this.game.ctx_fg.clearRect(0, 0, this.game.canvas_fg.width, this.game.canvas_fg.height);
     }
-    
-    this.game.ctx.clearRect(0, 0, this.game.canvas1.width, this.game.canvas1.height);
-}
+};
 
 Renderer.prototype.drawCell = function(coordinates, color, canvas) {
     // canvas = canvas || null;
     var extra;
+    var ctx;
     if(canvas === "bg") {
-        this.ctx = this.game.ctx_bg;
+        ctx = this.game.ctx_bg;
         extra = 7; //4
     }
     else {
         extra = 0;
-        this.ctx = this.game.ctx;
+        ctx = this.game.ctx_fg;
     }
        
-    this.ctx.fillStyle = color;
+    ctx.fillStyle = color;
     
     if (this.game.cellSpacing) {
-        this.ctx.fillRect (
+        ctx.fillRect (
             (coordinates.x + extra) * ( this.game.cellSize + this.game.cellSpacing ) + this.game.cellSpacing,
             (coordinates.y + extra) * ( this.game.cellSize + this.game.cellSpacing ) + this.game.cellSpacing,
             this.game.cellSize,
@@ -44,7 +47,7 @@ Renderer.prototype.drawCell = function(coordinates, color, canvas) {
         );
     } 
     else {
-        this.ctx.fillRect (
+        ctx.fillRect (
             coordinates.x * ( this.game.cellSize + 1) + 1,
             coordinates.y * ( this.game.cellSize + 1) + 1,
             this.game.cellSize + 1,
@@ -66,52 +69,104 @@ Renderer.prototype.drawAnImage = function(coordinates, img) {
 
 
 Renderer.prototype.drawCells = function() {
-    for (var i = 0; i < this.game.sizeX; i++) {
-        for (var j = 0; j < this.game.sizeY; j++) {
-            this.drawCell({x:i,y:j}, this.game.clearColor, "bg");
-        }
+    // var ctx = this.game.ctx_bg;
+    // for (var i = 0; i < this.game.sizeX; i++) {
+    //     for (var j = 0; j < this.game.sizeY; j++) {
+    //         // this.drawCell({x:i,y:j}, this.game.clearColor, "test");
+    //         // ctx.clearRect(
+    //         //     i * ( this.game.cellSize + this.game.cellSpacing ) + this.game.cellSpacing,
+    //         //     j * ( this.game.cellSize + this.game.cellSpacing ) + this.game.cellSpacing,
+    //         //     this.game.cellSize,
+    //         //     this.game.cellSize
+    //         // );
+    //     }
+    // }
+    var context = this.game.ctx_bg;
+    var p = 10
+    for (var x = 0; x <= this.game.canvas_fg.width; x += 16) {
+        context.moveTo(x + 128, 0 + 128);
+        context.lineTo(x + 128, this.game.canvas_fg.height + 128);
     }
+        
+        
+    for (var y = 0; y <= this.game.canvas_fg.height; y += 16) {
+        context.moveTo(0 + 128, y + 128);
+        context.lineTo(this.game.canvas_fg.width + 128, y + 128);
+    }
+        
+    context.strokeStyle = "black";
+    context.stroke();
+};
+
+Renderer.prototype.clearSnake = function(snake){
+    for (var i = 0; i < snake.segments.length; i++) {
+        this.ctx_fg.clearRect(
+            snake.segments[i].x * ( this.game.cellSize + 1) - 2,   
+            snake.segments[i].y * ( this.game.cellSize + 1) - 2, 
+            19,
+            19
+        ); 
+    }  
 };
 
 Renderer.prototype.drawSnakes = function(snakes) {
     for (var i = 0; i < snakes.length; i++) {
-        for (var j = snakes[i].segments.length -1; j >= 0; j--) {
-            if (j === 0) {
-                // head
-                    this.ctx.drawImage(
+        var snake = snakes[i];
+       
+        if(snake.prevH) { 
+            this.ctx_fg.clearRect(
+                snake.prevH.x * ( this.game.cellSize + 1) - 2,   
+                snake.prevH.y * ( this.game.cellSize + 1) - 2, 
+                19,
+                19
+            );
+        }
+        for (var j = snake.segments.length -1; j >= 0; j--) { 
+            var seg = snake.segments[j];                           
+            
+            //if(!snake.dead) {
+                if (j === 0) {
+                    // head
+                    this.ctx_fg.drawImage(
                         this.imgSnakeHeads[snakes[i].color], 
-                        snakes[i].segments[j].x * ( this.game.cellSize + 1) - 2,
-                        snakes[i].segments[j].y * ( this.game.cellSize + 1) - 2,
+                        seg.x * ( this.game.cellSize + 1) - 2,
+                        seg.y * ( this.game.cellSize + 1) - 2,
                         19,
                         19
                     );
-            }
-            else {
-                 this.ctx.drawImage(
-                        this.imgSnakeBodies[snakes[i].color], 
-                        snakes[i].segments[j].x * ( this.game.cellSize + 1),
-                        snakes[i].segments[j].y * ( this.game.cellSize + 1),
-                        15,
-                        15
-                    );
-                // this.ctx.fillStyle = snakes[i].color;
-                //     this.ctx.fillRect (
-                //         snakes[i].segments[j].x * ( this.game.cellSize + 1) + 1,
-                //         snakes[i].segments[j].y * ( this.game.cellSize + 1) + 1,
-                //         this.game.cellSize,
-                //         this.game.cellSize
-                //     );
-                // this.drawCell(snakes[i].segments[j], snakes[i].color);
-            }    
-        }  
+                }
+                else {
+                     this.ctx_fg.drawImage(
+                            this.imgSnakeBodies[snakes[i].color], 
+                            seg.x * ( this.game.cellSize + 1),
+                            seg.y * ( this.game.cellSize + 1),
+                            16,
+                            16
+                        );
+                }    
+            //}  
+        }
+        
+        if(snake.prevT) {
+            this.ctx_fg.clearRect(
+                snake.prevT.x * ( this.game.cellSize + 1) - 2,   
+                snake.prevT.y * ( this.game.cellSize + 1) - 2, 
+                19,
+                19
+            ); 
+        }
     }
 };
 
 Renderer.prototype.collisionDraw = function(collisions) {
     for(var i = 0; i < collisions.length; i++) {
         var collision = collisions[i];
-        for(var j = 0; j < collision.cells.length; j++) {
-            this.drawCell(collision.cells[j], "red", "bg"); 
+        try {
+            for(var j = 0; j < collision.cells.length; j++) {
+                this.drawCell(collision.cells[j], "red", "bg"); 
+            }
+        } catch(e) {
+            console.log("CAUGHT ERROR: " + e);
         }
     }
     
@@ -161,9 +216,6 @@ Renderer.prototype.drawBackground = function() {
         that.ctx_bg.drawImage(img, x + 64, y + 64, 64, 64);
     }
     
-    //draw grid - temp
-    // this.drawCells();
-    
     // load all the textures
     var corner_TL = new Image(),
         corner_TR = new Image(),
@@ -177,8 +229,8 @@ Renderer.prototype.drawBackground = function() {
         tile_stone_moss = new Image();
         
         corner_TL.onload = function() { that.ctx_bg.drawImage(corner_TL,    0+ 64,   0+ 64, 108, 108); };
-        corner_TR.onload = function() { that.ctx_bg.drawImage(corner_TR, 1557+ 64,   0+ 64, 108, 108); };
-        corner_BR.onload = function() { that.ctx_bg.drawImage(corner_BR, 1557+ 64, 788+ 64, 108, 108); };
+        corner_TR.onload = function() { that.ctx_bg.drawImage(corner_TR, 1556+ 64,   0+ 64, 108, 108); };
+        corner_BR.onload = function() { that.ctx_bg.drawImage(corner_BR, 1556+ 64, 788+ 64, 108, 108); };
         corner_BL.onload = function() { that.ctx_bg.drawImage(corner_BL,    0+ 64, 788+ 64, 108, 108); };
         
         wall_T.onload = function() {
@@ -256,7 +308,7 @@ Renderer.prototype.drawBackground = function() {
             }
         };
         
-        wall_L.onload = function() {
+        wall_L.onload = function() {            
             var growX = 0;
             var growY = 80;
             for(var xAmount = 0; xAmount < 1; xAmount++) {
@@ -289,11 +341,11 @@ Renderer.prototype.drawBackground = function() {
                     that.game.cellSize + 1,
                     that.game.cellSize + 1
                 );
-            }
+            } 
         };
         
         wall_R.onload = function() {
-            var growX = 1601;
+            var growX = 1600;
             var growY = 80;
             for(var xAmount = 0; xAmount < 1; xAmount++) {
                 for(var yAmount = 0; yAmount < 4; yAmount++ ) {
@@ -308,7 +360,7 @@ Renderer.prototype.drawBackground = function() {
                     growY += 64;
                 }
             }
-            growY -= 33;
+            growY -= 32;
             for(var xAmount = 0; xAmount < 1; xAmount++) {
                 for(var yAmount = 0; yAmount < 4; yAmount++ ) {
                     drawImage(wall_R, growX, growY);
@@ -366,7 +418,7 @@ Renderer.prototype.drawBackground = function() {
         wall_R.src = "../Display/img/walls/wall_R.png";
         wall_B.src = "../Display/img/walls/wall_B.png";
         wall_L.src = "../Display/img/walls/wall_L.png";
-        tile_stone.src = "../Display/img/walls/tile_stone.png";
+        tile_stone.src = "../Display/img/walls/tile_stone_green.png";
         tile_stone_moss.src = "../Display/img/walls/tile_stone_moss.png";
 };
 

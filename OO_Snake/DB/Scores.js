@@ -3,14 +3,30 @@ var fs = require('fs');
 var obj;
 // var player = { Naam: "henk", Score: 2, Nummer: "0612345678" };
 
+exports.sendScoresAdmin = function(socket){
+    fs.readFile('./scores.json', 'utf8', function (err, data) {
+        if (err) throw err;
+        var scores = JSON.parse(data);
+        socket.emit("setPlayerScores", scores);
+    });
+};
+
+exports.saveScoresAdmin = function(scores) {
+    var jsonInput = JSON.stringify(scores, null, 2);
+    fs.writeFile('./scores.json', jsonInput, 'utf8', function(err) {
+        if(err) {
+            console.log(err);
+        }
+    });
+};
 
 exports.ReadJson = function(){
-    obj = JSON.parse(fs.readFileSync('score.json', 'utf8'));
-}
+    obj = JSON.parse(fs.readFileSync('./DB/score.json', 'utf8'));
+};
 
 function write(){
     var jsonInput = JSON.stringify(obj, null, 2);
-    fs.writeFile('score.json', jsonInput, 'utf8', function(err) {
+    fs.writeFile('./DB/score.json', jsonInput, 'utf8', function(err) {
         if(err) {
             console.log(err);
         }

@@ -31,34 +31,23 @@
         <!-- JQuery Version 2.2.4 -->
         <script src="js/jquery-2.2.4.min.js"></script>
 
-        <!-- jQuery Version 1.11.1 
-        <script src="js/jquery.js"></script> -->
-
         <!-- Bootstrap Core JavaScript -->
         <script src="js/bootstrap.min.js"></script>
         
+        <!-- joystick library -->
         <script src="js/virtualjoystick.js"></script>
+        
+        <!-- pressure library om force touch en 3D touch van apple te kunnen uitschakelen  -->
+        <script src="js/pressure.min.js"></script>
+        <script src="js/jquery.pressure.min.js"></script>
         
         <!-- socket.io / control-logica/ communicatie -->
         <script src="/socket.io/socket.io.js"></script>
 	    <script src="comClient.js"></script>
         <script src="Controller.js"></script>
-        
-        <script type="text/javascript">
-            
-            function Snake() {
-                this.direction = false;
-            }
-                
-            
-            var snake = new Snake();
-            
-            var controller = new Controller(snake);
-            
-        </script>
 
 
-        <!-- div voor het username invoeren scherm -->
+        <!-- Username invoer -->
 
         <div class="container-fluid firstScreen">
 
@@ -70,13 +59,34 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-xs-11 col-xs-offset-1">           
-                        <h3> 1. Make sure you are connected to the Wifi network "Samba". </h3>
-                        <h3> 2. Enter a nickname below. </h3>
+                    <div class="col-xs-11 col-xs-offset-1">  
+                        <h3> Notice: The game controls work best on a smartphone with google chrome browser. </h3>
+                        <h3> 1. Choose your controls below. </h3>
+                        <h3> 2. Enter a nickname. </h3>
                         <h3> 3. Click Play! </h3>
+                        <h3> 4. Your snake will spawn in the left upper corner.</h3>
                     </div>
                 </div>
                 <hr>
+                <div class="row">
+                    <div class="col-xs-5 col-xs-offset-2">
+                       <label for="dpad">
+                        <img src="images/Screenshot_1.png" class="img-responsive controloption" alt="4 point controls">
+                         </label><br>
+                         <input type="radio" name="controls" value="dpad" id="dpad" checked> D-pad
+                    </div>
+                    <div class="col-xs-5 PickJoyStick">
+                        
+                        <label for="joystick">
+                        <img src="images/Screenshot_2.png" class="img-responsive controloption2" alt="joyStick">
+                        </label><br>
+                        <input type="radio" name="controls" value="Joystick" id="joystick"> Joystick
+                    </div>
+                    <div class="col-xs-5 joystickNotAvailable">
+                        <img src="images/Screenshot_2.png" class="img-responsive controloption2" alt="joyStick">       
+                        <p><strong>The joystick is only available on smartphone</strong></p>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-xs-4 col-xs-offset-4">           
                         <form action="" method="post" onsubmit="return false;" id="usernameInput">
@@ -108,22 +118,24 @@
                 </div>
 
                 <div class="row base">
-                    <div class="col-xs-4 text-left">
+                    <div class="col-xs-4 text-left joy">
                         <h1 class="big"> Play the game! </h1>
-                        <p> To play the game, use the arrow buttons on your keyboard. </p>
-
-
-                        <img id="up1" src="images/up.png" alt='up'  class="img-responsive upButton" onmousedown="changeUp1()"> 
-                        <img id="up2" src="images/upClick.png" alt='up'  class="img-responsive upButton" onmouseup="changeUp2()" style="display:none;">
-           
+                        <p> To play the game, use the arrow buttons on your keyboard or click/touch the buttons. </p>
+                        
+                            
+                        <div class="dpad">
+                        <img id="up1" src="images/up.png" alt='up'  class="img-responsive upButton dpad" onmousedown="changeUp1()"> 
+                        <img id="up2" src="images/upClick.png" alt='up'  class="img-responsive upButton dpad" onmouseup="changeUp2()" style="display:none;">
+                        </div>
             <!-- CONTROLS VOOR DESKTOP-->
-                        <div class="controls">
+                        <div class="controls dpad">
                             <img id="left1" src="images/left.png" alt='left' class="img-responsive button" onmousedown="changeLeft1()">
                             <img id="left2" src="images/leftClick.png" alt='left' class="img-responsive button" onmouseup="changeLeft2()" style="display:none;">
                             <img id="down1" src="images/down.png" alt='down' class="img-responsive button" onmousedown="changeDown1()">
                             <img id="down2" src="images/downClick.png" alt='down' class="img-responsive button"  onmouseup="changeDown2()" style="display:none;">
                             <img id="right1" src="images/right.png" alt='right' class="img-responsive button" onmousedown="changeRight1()">
                             <img id="right2" src="images/rightClick.png" alt='right' class="img-responsive button" onmouseup="changeRight2()" style="display:none;">
+
                         </div>
                         
                     </div>
@@ -135,13 +147,21 @@
                     <div class="col-xs-4 text-center">
                         <div class='big'><h1> Your  score: </h1></div>
                         <div class='small'><h2> Score: </h2></div>
-                        <h3 class="myCurrentPoints" class="score"> 0 </h3>
+                        <h3 class="myCurrentPoints score"> 0 </h3>
                         <h3 class="score2"> points </h3>
                     </div>
                 </div>
                 <div class="row">
-                    <div class='col-xs-6 col-xs-offset-3 text-center'>
-                        <p class='color' style="background-color: green;">The color of your snake is: GREEN</p>
+                    <div id="mobileView">
+                        <!-- Een mogelijkheid om de mobile controls te openen op de tablet of desktop variant -->
+                            <p style="color: blue;"> (To use the mobile controls, click here.)  </p>
+                            </div>
+                    <div class='col-xs-4 col-xs-offset-2 text-right snakeTxt desktopTxt'>
+                    <!-- Afbeelding met de kleur van je snake op het scherm -->
+                         <p><strong>Your snake looks like this: </strong> </p>
+                    </div>
+                     <div class='col-xs-4 text-center'>
+                         <p class='color'> </p>
                     </div>
                 </div>
             </div>
@@ -151,32 +171,42 @@
             <!-- div voor mobiele weergave van de controls en score -->
            
           <div class='container-fluid landscape mobile'>
-                <div class="row">
+              <!-- met joystick -->
+                <div id="joy">
+                    <div class="row">
+                        <div class="col-xs-5">
+                            <img src="images/Snakelogoblue.png" alt="logo" class="img-responsive logo2">
+                        </div>
+                        <div class="col-xs-3 joy">
+                             <img src="images/raspberryMobile.png" alt="raspberry" class="img-responsive raspMobJoy">
+                             <h2 class="myCurrentPoints"> 0 </h2>   
+                        </div>
+                    </div>
+                </div>
+              <!-- met dpad -->
+                <div class="row dpad">
                     <div class="col-xs-3 col-xs-offset-1">
                         <img src="images/Snakelogoblue.png" alt="logo" class="img-responsive logo2">
                     </div>
-                    <div class="col-xs-4 col-xs-offset-3 text-center scoreMob">
-                    <!--<h2> Score: </h2> -->
-                       
-                    </div>
                 </div>
+                
                 <div class="row">
-                    <div class="col-xs-4">
+                    <div class="col-xs-4 dpad">
                          <div class="row upMissClick">
                         <img id="Umobile" src="images/up.png" alt="upmobile" class="img-responsive mobileControls upDown">
                         <img id="Umobile1" src="images/upClick.png" alt="upmobile" class="img-responsive mobileControls upDown" style="display:none;">
                         </div>
-                         <div class="row downMissClick">
+                    <div class="row downMissClick">
                         <img id="Dmobile" src="images/down.png" alt="downmobile" class="img-responsive mobileControls down">
                         <img id="Dmobile1" src="images/downClick.png" alt="downmobile" class="img-responsive mobileControls down" style="display: none;">
                     </div>
                     </div>
-                    <div class="col-xs-3 text-center">
+                    <div class="col-xs-3 text-center dpad">
                         <img src="images/raspberryMobile.png" alt="raspberry" class="img-responsive raspMob">
                          <h2 class="myCurrentPoints"> 0 </h2>
-                       
-                    </div> 
-                    <div class="col-xs-5">
+                    </div>
+                     
+                    <div class="col-xs-5 dpad">
                        
                         <img id="Rmobile" src="images/right_opacity.png" alt="rightmobile" class="img-responsive mobileControls2 pull-right">
                         <img id="Rmobile1" src="images/rightClick_opacity.png" alt="rightmobile" class="img-responsive mobileControls2 pull-right" style="display:none;">
@@ -188,10 +218,15 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class='col-xs-6 col-xs-offset-3 text-center'>
-                         <p class='color' style="background-color: blue">The color of your snake is: BLUE</p>
+                    <!-- Afbeelding met de kleur van je snake op het scherm -->
+                    <div class='col-xs-4 col-xs-offset-2 text-right snakeTxt'>
+                         <p> <strong> Your snake looks like this: </strong></p>
+                    </div>
+                     <div class='col-xs-4 text-center'>
+                         <p class='color'> </p>
                     </div>
                 </div>
+                
             </div>
             
             
@@ -200,14 +235,14 @@
 
             <!-- Div voor als de telefoon in portrait mode is tijdens het spelen van het spel, 
                 geeft een melding dat de telefoon 90 graden gedraaid moet worden -->
-            <div class='container-fluid portrait'>
+            <div class='container-fluid portrait controlsTurnPhone'>
                 <img src="images/Snakelogoblue.png" alt='logo' class="img-responsive logo">
                 <h1> Turn your phone 90 degrees to use the controls! </h1>
                 <img src="images/turn_phone.png" alt='turn_phone' class="img-responsive phone">
             </div>
         </div>
 
-
+        <!-- Wachtrij! -->
         <div class="container wachtrij">
             <div class="row">
                 <div class="col-xs-12 text-center">
@@ -223,7 +258,7 @@
             </div>
             <div class="row">
 
-
+            <!-- positie in wachtrij weergeven -->
             </div>
             <div class="row">
                 <div class="col-xs-12 text-center">
@@ -303,8 +338,6 @@
                 <div class=" col-xs-12 text-center">
                     <h2>Congratulations <span id="nickname"></span>, &nbsp; you have a new highscore! </h2>
                     <h3> Leave your phone number below for a chance to win the Raspberry Pi 3! </h3>
-
-
                 </div>
             </div>
             <div class="row">
@@ -324,31 +357,57 @@
 
 
         <!-- Jquery functies om de knoppen van kleur te laten veranderen
-          en de juiste divs weer te geven. -->
+          , de juiste divs weer te geven en de client te laten communiceren met de server. -->
           
-        <script>
+        <script type="text/javascript">
+        // een aantal varabielen die vaker nodig zijn
             var nameClick = false;
             var phoneClick = false;
             var replayClick = false;
             var username;
+            var outputEl;
+            var snakecolor;
            
             
+            /* controller maakt een object op voor de client om te kijken welke kant hij op kan gaan
+            Snake direction zorgt ervoor dat hij niet op zichzelf terug kan sturen  */
             
+            function Snake() {
+                this.direction = false;
+            }
+                
+            
+            var snake = new Snake();
+            
+            var controller = new Controller(snake);
+           
+           // functie voor het telefoonnummer invoeren. 
             function isNumber(n) {
                 return !isNaN(parseFloat(n)) && isFinite(n);
             }
             
+            
+            /* wanneer er op de replay button wordt geklikt wordt de user met dezelfde username 
+             weer in het spel gezet, of in de wachtrij wanneer het spel vol is  */
             $(".replay").on("click", function() {
                 console.log("btn clicked");
                 if(!replayClick && username.length > 0){
                     setPlayerName(username);
                     replayClick = true;
+                    $("#joy").show();
                     $(".myCurrentPoints").text(0);
+                    /* page scrollt automatisch naar beneden, zodat de belangrijkste onderdelen van de controler altijd
+                    zichtbaar zijn */
                     window.scrollTo(0,document.body.scrollHeight);
+                    // zorgt dat er door de gebruiker niet gescrollt kan worden 
                     $('body').bind('touchmove', function(e){e.preventDefault()});
-                }
+                    launchIntoFullscreen(document.documentElement);
+                } 
             });
             
+            
+            /* Wanneer de speler zijn username submit, wordt de username opgeslagen en wordt de speler 
+            in het spel of de wachtrij geplaatst */
             $("#btnPlayerNameSubmit").on("click", function() {
                 console.log("btn clicked");
                 username = document.getElementById('username').value;
@@ -356,12 +415,14 @@
                     setPlayerName(username);
                     nameClick = true;
                     document.getElementById('nickname').innerText = document.createTextNode(username).textContent;
-                    
                     window.scrollTo(0,document.body.scrollHeight);
                     $('body').bind('touchmove', function(e){e.preventDefault()});
+                    launchIntoFullscreen(document.documentElement);
                 }
             });
-                    
+            
+            /* Als er een topscore wordt gehaald, wordt de speler gevraagd om een telefoonnummer in te vullen.
+            Deze wordt vervolgens opgeslagen.*/        
             $("#btnPlayerPhoneSubmit").on("click", function() {
                 console.log("btn clicked");
                 var number = document.getElementById('phonenumber').value.trim();
@@ -373,8 +434,96 @@
                 }
             });
             
+            // dit is om de joystick te laten zien
+            function enableJoystick()
+            {
+                var joystick	= new VirtualJoystick({
+				container	: document.getElementById('joy'),
+				mouseSupport	: true,
+				limitStickTravel: true,
+		        stickRadius	: 50
+			});
+			
+		    /* Hier krijgt de joystick informatie welke richting hij op staat, en geeft de commando aan de snake 
+		     om die richting op te gaan*/
+            joystick.deltaX()
+		    joystick.deltaY()
+		    setInterval(function(){
+		
+			if( joystick.right() && outputEl != "right" ){
+	    	outputEl = "right";  
+	    	changeRight1();
+		    }
+	    	else if( joystick.left() && outputEl != "left" ){
+	        outputEl = "left";
+	        changeLeft1();
+	    	}
+	    	else if( joystick.up() && outputEl != "up" ){
+	    	outputEl = "up";  
+	    	changeUp1();
+	    	}
+	     	else if( joystick.down() && outputEl != "down" ){
+	    	outputEl = "down";
+	    	changeDown1();}}, 10);}
+            
+            
+            // Functie om volledig scherm te starten zodat de besturing beter werkt 
+            function launchIntoFullscreen(element) {
+              if(element.requestFullscreen) {
+                element.requestFullscreen();
+              } else if(element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();
+              } else if(element.webkitRequestFullscreen) {
+                element.webkitRequestFullscreen();
+              } else if(element.msRequestFullscreen) {
+                element.msRequestFullscreen();
+              }
+            }
+            
+            // functie om volledig scherm te sluiten, bijvoorbeeld bij het laten zien van topscores en game over scherm 
+            function exitFullscreen() {
+              if(document.exitFullscreen) {
+                document.exitFullscreen();
+              } else if(document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+              } else if(document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+              }
+            }
+            
+            // disabled de 3D touch en force touch van iphone 6, omdat anders de controls niet fijn werken
+            Pressure.config({
+              polyfill: false,
+              preventDefault: true,
+              only: null
+            });
 
-
+            $('.controller').pressure({
+              start: function(event){
+                event.preventDefault();
+                force.preventDefault();
+              },
+              end: function(){
+                event.preventDefault();
+                force.preventDefault();
+              },
+              startDeepPress: function(event){
+                event.preventDefault();
+                force.preventDefault();
+              },
+              change: function(force, event){
+                event.preventDefault();
+                force.preventDefault();
+              }
+            });
+            
+            //bij tablet / desktop view, mogelijkheid om mobile besturing te openen
+            $("#mobileView").on('click touch', function () {
+                $(".desktop").hide();
+                $(".mobile").show();
+            });
+            
+            
             //Script om de mobile knoppen van kleur te veranderen op touch
             $("#Dmobile, .downMissClick").on('touchstart', function () {
                 
@@ -386,6 +535,8 @@
                 }
             });
 
+            /* De onderstaande functies zorgen dat de knoppen van kleur veranderen en de snake 
+            van richting veranderd bij het 'touchen' op de knoppen.*/
             $("#Dmobile, .downMissClick").on('touchend', function () {
                 $("#Dmobile1").hide();
                 $("#Dmobile").show();
@@ -433,6 +584,9 @@
                 $("#Rmobile").show();
             });
             
+            
+            /* Zorgt er voor dat er geen contextmenu verschijnt bij afbeeldingen, bijvoorbeeld voor opslaan etc. 
+            Als dit wel gebeurt gooit het de besturing in de war */
             $("body").on("contextmenu", "img", function(e) {
                  return false;
             });
@@ -478,12 +632,15 @@
                 $(".gameOver").hide();
                 $(".topScore").hide();
                 $(".wachtrij").hide();
+              
             });
 
+            // score updaten 
             function updateMyScore(score) {
                 $(".myCurrentPoints").text(score);
             }
             
+            // show topscores bij game over
             function showTopScores(scores) {
                 for (var i = 0; i < scores.length; i++) {
                     $(".highscore" + i).text(scores[i][0] + " - " + scores[i][1]);
@@ -491,34 +648,69 @@
             }
 
             // laat de controller zien wanneer deze functie aangeroepen wordt
-            function showHide() {
+            
+            //snakeColor is an INT from 0 to 9
+            function showHide(color) {
+                
                 $(".gameOver").hide();
                 $(".topScore").hide();
                 $(".firstScreen").hide();
                 $(".wachtrij").hide();
-                $(".controller").show();
+                
                 replayClick = false;
+                snake.direction = false;
+                controller.lastCommand = "";
+                
+                if(document.getElementById('dpad').checked) {
+                    //dpad radio button is checked
+                    $(".controller").show();
+                    $("#joy").hide();
+                    //hier wordt het nummer van de kleur +1 gedaan ivm dat de array begint bij 0.
+                    snakecolor = (color + 1 ) ;
+                    getColor();
+                    }else if(document.getElementById('joystick').checked) {
+                    //joystick radio button is checked
+                    $(".dpad").hide();
+                    $(".controller").show();
+                    enableJoystick();
+                    //hier wordt het nummer van de kleur +1 gedaan ivm dat de array begint bij 0.
+                    snakecolor = (color + 1 ) ;
+                    getColor();
+                }
+                
             }
             
+            // deze functie laat de juiste kleur zien op de controller
+            function getColor(){
+                $(".color").empty();
+                $(".color").prepend("<img src='images/snake_" + snakecolor + ".png' alt='snakecolor' class='img-responsive snakeImg'>");
+            }
+            
+            // Deze functie laat het topscore scherm zien, en zorgt er voor dat de gebruiker weer kan scrollen
             function inTopScore() {
                 $('body').unbind('touchmove');
+                exitFullscreen();
                 $(".gameOver").hide();
                 $(".topScore").show();
                 $(".firstScreen").hide();
                 $(".wachtrij").hide();
                 $(".controller").hide();
+                $("#joy").hide();
             }
             
             // laat gameover scherm zien
             function gameOver() {
                 $('body').unbind('touchmove');
+                exitFullscreen();
                 $(".firstScreen").hide();
                 $(".controller").hide();
                 $(".topScore").hide();
                 $(".wachtrij").hide();
                 $(".gameOver").show();
+                $("#joy").hide();
             }
             
+            //Laat wacht lijst zien, stuurt positie pos mee
              function waitingLine(pos) {
                  
                 $(".firstScreen").hide();
@@ -530,7 +722,8 @@
                 // reset the waiting position
                 $("#waitingPositionElement").text("Your position in que: " + pos);
              }
-            // veranderd kleur van de toetsen in desktop mode, door te klikken of pijltjestoetsen op toetsenbord
+            /* veranderd kleur van de toetsen in desktop mode, door te klikken of pijltjestoetsen op toetsenbord
+            En geef de snake het commando om die richting op te gaan*/
             function changeUp1() {
                 $("#up1").hide();
                 $("#up2").show();
@@ -597,7 +790,8 @@
             
             
             
-            
+            /* Roep de functies aan om de knoppen van kleur te veranderen en de snake te sturen 
+            bij het indrukken van de pijltjestoetesen op het toetsenbord */
             document.onkeydown = function (e) {
                 switch (e.keyCode) {
                     case 37:
@@ -612,29 +806,9 @@
                     case 40:
                         changeDown1();
                         break;
-                        //show gameover door 'o' in te drukken op toetsenbord
-                    // case 79:
-                    //     $(".controller").hide();
-                    //     $(".topScore").hide();
-                    //     $(".wachtrij").hide();
-                    //     $(".gameOver").show();
-                    //     break;
-                    //     //show topscore door 't' in te drukken op toetsenbord
-                    // case 84:
-                    //     $(".controller").hide();
-                    //     $(".gameOver").hide();
-                    //     $(".wachtrij").hide();
-                    //     $(".topScore").show();
-                    //     break;
-                    //     //show wachtrij door 'w' in te drukken op toetsenbord
-                    // case 87:
-                    //     $(".controller").hide();
-                    //     $(".gameOver").hide();
-                    //     $(".wachtrij").show();
-                    //     $(".topScore").hide();
-                    //     break;
                 }
             };
+            
             document.onkeyup = function (e) {
                 switch (e.keyCode) {
                     case 37:

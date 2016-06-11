@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Admin panel</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="css/custom.css" rel="stylesheet">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+    </head>
+    <body>
+        <!-- JQuery Version 2.2.4 -->
+        <script src="js/jquery-2.2.4.min.js"></script>
+
+        <!-- Bootstrap Core JavaScript -->
+        <script src="js/bootstrap.min.js"></script>
+        
+        
+        <!-- socket.io / control-logica/ communicatie -->
+        <script src="/socket.io/socket.io.js"></script>
+	    <script src="comAdmin.js"></script>
+	    
+        <!-- div voor het inloggen op de admin panel  -->
+        <div class="container adminLogin">
+            <div class="row landscape">
+                <div class="col-xs-4">
+                    <img src="images/Snakelogoblue.png" alt="logo" class="img-responsive logo">
+                </div>
+                <div class="col-xs-8 text-center">
+                   <h1> Admin panel</h1>
+                </div>
+            </div>
+            <div class="row portrait port">
+                <div class="col-xs-6 col-xs-offset-3 text-center">
+                   <img src="images/Snakelogoblue.png" alt="logo" class="img-responsive logo">
+                </div>
+                <div class="col-xs-12 text-center">
+                   <h1> Admin panel</h1>
+                </div>
+            </div>
+            <div class="row">
+            <hr>
+                <div class="col-xs-6 col-xs-offset-3 text-center">
+                   <strong><p>Enter the password to get access to this page.</p></strong>
+                    <form  action="" method="post" onsubmit="
+                            return false" id="passInput">
+                        <label for="password"> Password: </label>
+                        <input type="password" id="password">
+                        <input type='submit' value="Submit" id='adminLoginSubmit' class='form-control btn'>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        
+        <!-- div voor nadat het password is ingevoerd -->
+        <div class="container adminPanel">
+             <div class="row landscape">
+                <div class="col-xs-4">
+                    <img src="images/Snakelogoblue.png" alt="logo" class="img-responsive logo">
+                </div>
+                <div class="col-xs-8 text-center">
+                   <h1> Admin panel</h1>
+                </div>
+            </div>
+            <div class="row portrait port">
+                <div class="col-xs-6 col-xs-offset-3 text-center">
+                   <img src="images/Snakelogoblue.png" alt="logo" class="img-responsive logo">
+                </div>
+                <div class="col-xs-12 text-center">
+                   <h1> Admin panel</h1>
+                </div>
+            </div>
+            <hr>
+            <div class="row landscape">
+                <div class="col-xs-3">
+                    <h2> Sound on/off</h2>
+                    <img id="musicOn" src="images/button_on.png" alt="musicOn" class="img-responsive music musicOn">
+                    <img id="musicOff" src="images/button_off.png" alt="musicOff" class="img-responsive music musicOff" style="display: none;">
+                </div>
+                <div class="col-xs-8 text-center">
+                    <h2> Topscores  </h2> 
+                    <h3 class="score0"> Jan - 34531 - 0612345678 </h3>
+                    <h3 class="score1"> Piet - 25435 - 0612345678 </h3>
+                    <h3 class="score2"> Jan  - 23453 - 0612345678 </h3>
+                </div>
+            </div>
+             <div class="row portrait text-center">
+                <div class="col-md-3">
+                    <h2> Sound on/off</h2>
+                    <img id="musicOn" src="images/button_on.png" alt="musicOn" class="img-responsive music musicOn">
+                    <img id="musicOff" src="images/button_off.png" alt="musicOff" class="img-responsive music musicOff">
+                    <hr class="portrait">
+                </div>
+                <div class="col-md-8 text-center">
+                    <h2> Topscores  </h2> 
+                    <h3 class="score0"> Jan - 34531 - 0612345678 </h3>
+                    <h3 class="score1"> Piet - 25435 - 0612345678 </h3>
+                    <h3 class="score2"> Jan  - 23453 - 0612345678 </h3>
+                </div>
+            </div>
+            <hr>
+            <div class="row allScores">
+                <div class="col-xs-11 text-center">
+                    <h2> All scores: </h2>
+                    <h3 class="scoresAllPlayers"></h3>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+        <script type="text/javascript">
+            var pass;
+            var useMusicToggle = false;
+            
+            $(function ()
+            {
+                $(".adminLogin").show();
+                $(".adminPanel").hide();
+            });
+            
+            $("body").on("contextmenu", "img", function(e) {
+             //    return false;
+            });
+            
+            $(".musicOn").on('click touch', function () {
+                if(useMusicToggle){
+                    $(".musicOn").hide();
+                    $(".musicOff").show();
+                    toggleMusic(0);
+                }
+            });
+            
+             $(".musicOff").on('click touch', function () {
+                if(useMusicToggle){
+                    $(".musicOff").hide();
+                    $(".musicOn").show();
+                    toggleMusic(1);
+                }
+            });
+            
+             $("#adminLoginSubmit").on("click", function() {
+                pass = document.getElementById('password').value;
+                checkPassword(pass);
+                $(".adminLogin").hide();
+                $(".musicOff").hide();
+            });
+            
+            function showAdminPanel(data){
+                for (var i = 0; i < data.scores.length; i++) {
+                    $(".score" + i).text(data.scores[i][0] + " - " + data.scores[i][1] + " - " + data.phone[i][1]);
+                }
+                $(".adminPanel").show();
+                
+                if(data.music){
+                    $(".musicOff").hide();
+                    $(".musicOn").show();
+                } else {
+                    $(".musicOff").show();
+                    $(".musicOn").hide();
+                }
+                useMusicToggle = true;
+            }
+            
+            function updateScoresAll(scores){
+                console.log("update scoreAll functie called, schrijfen maar");
+                $(".scoresAllPlayers").text("");
+                for (var i = scores.length - 1; i >= 0; i--) {
+                     $(".scoresAllPlayers").append(scores[i].Naam + " - " + scores[i].Score + " <br>");
+                }
+            }
+            
+        </script>
+    </body>
+</html>
