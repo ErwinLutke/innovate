@@ -1,11 +1,11 @@
 /**************************************************
 **  REQUIREMENTS
 **************************************************/
-var util = require("util"),  
-    express = require('express'),
-    http = require('http'),
-    socketio = require('socket.io'),
-    scoresDB = require('./DB/Scores.js');
+var util = require("util"),                 // Module for logging
+    express = require('express'),           // Module for express framework
+    http = require('http'),                 // using http
+    socketio = require('socket.io'),        // loads up socket.io
+    scoresDB = require('./DB/Scores.js');   // Loads functions for scores
         
 /**************************************************
 ** SERVER SERTUP
@@ -14,7 +14,7 @@ var app = express(),                  // create express instance
     server = http.createServer(app),  // create the http server from express
     io = socketio(server),            // setup socket io to listen to the server
     //port = 8081,
-    port = process.env.PORT,              // stores port to listen on
+    port = process.env.PORT,          // stores port to listen on
     ip = process.env.IP;              // stores the ip
     
     
@@ -24,6 +24,7 @@ var nspDisplay = io.of('/display');
 var nspClient = io.of('/client');
 var nspAdmin = io.of('/admin');
 
+// setup passowrd for the admin panel
 var password = "";
     
 // gives access to game and client files
@@ -31,7 +32,6 @@ app.use('/client', express.static('Client'));
 app.use('/admin', express.static('Client'));
 app.use('/display', express.static('Display'));
 app.use('/', express.static('Client'));
-//app.use('/js', express.static('js'));
 
 // request to the root of dir (homepage) send the request to client index
 app.get('/', function(request, response){
@@ -43,30 +43,24 @@ app.get('/', function(request, response){
 /**************************************************
 ** GAME VARIABLES
 **************************************************/
-var players;      // array of connected players
-var waitingLine;  // stores players if no spot is free
-var maxPlayers;   // int - players allowed to play at the same time
-var topScores;    // stores scores of top Players
+var players;                // array of connected players
+var waitingLine;            // stores players if no spot is free
+var maxPlayers;             // int - players allowed to play at the same time
+var topScores;              // stores scores of top Players
+var allScoresDB;            // Stores all scores of everyone playing
 
-var allScoresB;
+var tempPlayer = [];        // stores temporary players
+var OccupiedColors = [];    // sets color for the snake and players
+var playMusic = 1;          // Sets music on or off
 
-var playMusic = 1;
-
-var tempPlayer;     // stores the player sounds
-
-var OccupiedColors = [];    //sets color for the snake and players
-
-//var AIs = 0;
-  
 /**************************************************
 ** GAME INITIALISATION
 **************************************************/
 function init() { 
-    scoresDB.ReadJson();   // loads the scores
+    scoresDB.ReadJson();                 // loads the scores
     topScores = scoresDB.getScores();    // get scores and names of top 3 players
-    tempPlayer = [];
     
-    server.listen(port, ip);        // start up the game server
+    server.listen(port, ip);            // start up the game server
     util.log('Started game server: listening on port:' + port + ' on ip: ' + ip );
     
     players = [];                   // create empty array for storing the players
@@ -82,11 +76,16 @@ function init() {
     setEventHandlersAdmin();
 }
 
+/**************************************************
+** EVENT HANDLERS - ADMIN
+**************************************************/
+// When admin panel connects, this function triggers
 var setEventHandlersAdmin = function() {
     nspAdmin.on("connection", onSocketConnectionAdmin);
 };
 
 function onSocketConnectionAdmin (socket) {
+    // Current top scores will be sent to the adminpanel for display
     scoresDB.sendScoresAdmin(socket);
     socket.on("disconnect", onAdminDisconnect);
     socket.on("checkPassword", onCheckPassword);
@@ -189,7 +188,7 @@ function onSpotOpen(removedPlayer) {
         var sColor = giveColor();
         nspDisplay.emit("newPlayer", { player: newPlayer, color: sColor });
         
-        io.nsps['/client'].sockets[newPlayer.id].emit("playGame");
+        io.nsps['/client'].sockets[newPlayer.id].emit("playGame", sColor);
         if (waitingLine.length > 0) {
             for(var i = 0; i < waitingLine.length; i++) {
                 io.nsps['/client'].sockets[waitingLine[i].id].emit("waitingLine" , i+1);
@@ -340,13 +339,13 @@ function playerById(id) {
 
 
 function giveColor() {
-    var color = Math.floor((Math.random() * 9) + 1);
+    var color = Math.floor((Math.random() * 10));
     //var timeOutCount = 0;
     var IfstatementUsed = "None";
     //give random color if not more than 6 players in the game, else give the next color
     if(OccupiedColors.length < 6) {
         while(OccupiedColors.indexOf(color) != -1) {// && timeOutCount < 25
-            color = Math.floor((Math.random() * 9) + 1);
+            color = Math.floor((Math.random() * 10));
             //timeOutCount++;
             IfstatementUsed = "Random";
         }
@@ -356,14 +355,15 @@ function giveColor() {
             color++;
             IfstatementUsed = "Fixed";
         }
-        while(OccupiedColors.indexOf(color) != -1 && color < 9)
+        while(OccupiedColors.indexOf(color) != -1 && color < 9);
     }
     
-  //  console.log(IfstatementUsed + ", " + color);
+    // console.log(IfstatementUsed + ", " + color);
+    
     OccupiedColors.push(color);
-    OccupiedColors.forEach(function(value, index) {
-     //   console.log("Index: " + index + ", Value: " + value);
-    })
+    // OccupiedColors.forEach(function(value, index) {
+    //     console.log("Index: " + index + ", Value: " + value);
+    // });
     
     
     return color;
