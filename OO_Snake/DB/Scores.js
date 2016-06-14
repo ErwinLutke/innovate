@@ -3,15 +3,12 @@ var fs = require('fs');
 var obj;
 // var player = { Naam: "henk", Score: 2, Nummer: "0612345678" };
 
-exports.sendScoresAdmin = function(socket){
-    fs.readFile('./scores.json', 'utf8', function (err, data) {
-        if (err) throw err;
-        var scores = JSON.parse(data);
-        socket.emit("setPlayerScores", scores);
-    });
+exports.readAllScores = function(){
+    var scores = JSON.parse(fs.readFileSync('./scores.json', 'utf8'));
+    return scores;
 };
 
-exports.saveScoresAdmin = function(scores) {
+exports.saveAllScores = function(scores) {
     var jsonInput = JSON.stringify(scores, null, 2);
     fs.writeFile('./scores.json', jsonInput, 'utf8', function(err) {
         if(err) {
@@ -34,16 +31,20 @@ function write(){
 }
 
 exports.updateScore = function(playerToUpdate){
-    if(playerToUpdate.Score > obj.Player1.Score){
-        obj.Player3 = obj.Player2;
-        obj.Player2 = obj.Player1;
+    var player3 = obj.Player3;
+    var player2 = obj.Player2;
+    var player1 = obj.Player1;
+    
+    if(playerToUpdate.Score > player1.Score){
+        obj.Player3 = player2;
+        obj.Player2 = player1;
         obj.Player1 = playerToUpdate;
     }
-    else if(playerToUpdate.Score > obj.Player2.Score || playerToUpdate.Score == obj.Player1.Score){
-        obj.Player3 = obj.Player2;
+    else if(playerToUpdate.Score > player2.Score || playerToUpdate.Score == player1.Score){
+        obj.Player3 = player2;
         obj.Player2 = playerToUpdate;
     }
-    else if(playerToUpdate.Score > obj.Player3.Score || playerToUpdate.Score == obj.Player2.Score){
+    else if(playerToUpdate.Score > player3.Score || playerToUpdate.Score == player2.Score){
         obj.Player3 = playerToUpdate;
     }
     write();

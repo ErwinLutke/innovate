@@ -42,7 +42,6 @@ function onSocketConnected() {
 }
 
 function onSocketDisconnect(msg) {
-	// alert(msg);
 	console.log("Disconnected from the server: " + msg);
 }
 
@@ -56,7 +55,6 @@ function onMovePlayerSnake(client) {
 		game.snakes[snakePos].moves.push(client.direction);
 		game.snakes[snakePos].direction = client.direction;
 	}
-	//console.log("moving snake: " + snakePos);
 }
 
 function onRemovePlayer(player) {
@@ -64,7 +62,6 @@ function onRemovePlayer(player) {
 	if(pos !== false) {
 		game.snakesToRemove.push(game.snakes[pos]);
 	}
-	// snakes.splice(pos, 1);
 }
 
 function onMusic(data) {
@@ -79,23 +76,10 @@ function onMusic(data) {
 }
 
 /**************************************************
-** EVENT HANDLERS - SENDERS  (temp in Game.js)
-**************************************************/
-function sendScore(snake){
-	    try {
-    		socket.emit("recieveScore", {id: snake.clientID, points: snake.length});
-    		//console.log("sending points to server");
-        }
-        catch(e){
-           // console.log("SP? - cant send scores");
-        }
-}
-
-
-/**************************************************
 ** START COMMUNICATION
 **************************************************/
 init();
 
+// @socket - holds the data connection to the server
 game = new Game(socket);
 game.loop();

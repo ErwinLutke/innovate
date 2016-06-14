@@ -38,7 +38,7 @@
         <script src="js/virtualjoystick.js"></script>
         
         <!-- pressure library om force touch en 3D touch van apple te kunnen uitschakelen  -->
-        <script src="js/pressure.min.js"></script>
+        <script  src="js/pressure.min.js"></script>
         <script src="js/jquery.pressure.min.js"></script>
         
         <!-- socket.io / control-logica/ communicatie -->
@@ -300,6 +300,7 @@
                     <h2 class='tryAgain'> Try Again? </h2>
                     <hr>
                     <a href='#' class="replay">  <img src='images/tryagain.png' alt='tryagain' class='img-responsive'></a>
+                    <p class="refresh">To play again with different controls, click here.</p>
                 </div>
             </div>
             <!-- portrait modus -->
@@ -324,6 +325,7 @@
                 <div class='col-md-4 text-center '>
                     <h1 class='tryAgain'> Try Again? </h1>
                     <a href='#' class="replay">  <img src='images/tryagain.png' alt='tryagain' class='img-responsive refresh'></a>
+                    <p class="refresh">To play again with different controls, click here.</p>
                 </div>
             </div>
         </div>
@@ -347,13 +349,17 @@
                         <h3>  <label for="username"> Phonenumber </label></h3>
                         <input type="text" id="phonenumber" class="form-control" required>
                         <input type='submit' value="Submit!" id='btnPlayerPhoneSubmit' class='form-control btn'>
-                    </form> 
+                        <hr>
+                        </form> 
+                        <input type='submit' value="No thanks" id="btnPlayerNoThanks" class='form-control btn'>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col-xs-12 text-center">
                     <p> (If you choose not to leave your phone number, you<strong> can't</strong> win the price and your score will NOT be stored.) </p>
                 </div>
             </div>
-        </div>
+        
 
 
         <!-- Jquery functies om de knoppen van kleur te laten veranderen
@@ -434,6 +440,18 @@
                 }
             });
             
+            // als iemand een topscore heeft en niet zijn telefoonnummer in voert, wordt er nog een keer gevraagd of hij het zeker weet. 
+            $("#btnPlayerNoThanks").on("click", function() {
+                console.log("btn clicked");
+                 var r = confirm("Are you sure? If you don't leave your phone number you can't win the price!");
+                if (r == true) {
+                    gameOver();
+                } else {
+                    return false;
+                }
+            });
+
+            
             // dit is om de joystick te laten zien
             function enableJoystick()
             {
@@ -466,7 +484,6 @@
 	    	outputEl = "down";
 	    	changeDown1();}}, 10);}
             
-            
             // Functie om volledig scherm te starten zodat de besturing beter werkt 
             function launchIntoFullscreen(element) {
               if(element.requestFullscreen) {
@@ -497,7 +514,7 @@
               preventDefault: true,
               only: null
             });
-
+            
             $('.controller').pressure({
               start: function(event){
                 event.preventDefault();
@@ -624,6 +641,12 @@
                changeRight2();
             });
 
+
+            // page refreshen 
+            $(".refresh").on('click touch', function () {
+               location.reload();
+            });
+            
             
             // hide controls en gameover bij laden van de website
             $(function ()
@@ -669,7 +692,7 @@
                     //hier wordt het nummer van de kleur +1 gedaan ivm dat de array begint bij 0.
                     snakecolor = (color + 1 ) ;
                     getColor();
-                    }else if(document.getElementById('joystick').checked) {
+                }else if(document.getElementById('joystick').checked) {
                     //joystick radio button is checked
                     $(".dpad").hide();
                     $(".controller").show();
@@ -688,7 +711,7 @@
             }
             
             // Deze functie laat het topscore scherm zien, en zorgt er voor dat de gebruiker weer kan scrollen
-            function inTopScore() {
+            function inTopScore(topscores) {
                 $('body').unbind('touchmove');
                 exitFullscreen();
                 $(".gameOver").hide();
@@ -697,6 +720,8 @@
                 $(".wachtrij").hide();
                 $(".controller").hide();
                 $("#joy").hide();
+                
+	            showTopScores(topscores);
             }
             
             // laat gameover scherm zien

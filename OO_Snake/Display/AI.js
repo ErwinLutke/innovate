@@ -1,5 +1,5 @@
 function RoboSchnake(snake, game) {
-    
+    this.id;
     //spawnlocation
     this.randPos = function(size) {return Math.floor((Math.random() * size) + 1);};
     var repeat;
@@ -18,10 +18,8 @@ function RoboSchnake(snake, game) {
             }
         }
     } while(repeat == true);
-    snake.spawnSnake(this.posX, this.posY);
     
     this.snake = snake;
-    this.snake.isAI = true;
     this.snake.direction = 0; //0 1 2 3 right left up down
     this.target = false;
     this.targetPosition = [];
@@ -29,6 +27,8 @@ function RoboSchnake(snake, game) {
     this.nextDirections = [];
     this.nextDirections[0] = false;
     this.game = game;
+   
+    this.snake.spawnSnake(this.posX, this.posY);
     
 }
 // moves AI to nearest food, and if the snakes is about to collide with himself or a other snake it will try to dodge

@@ -22,7 +22,6 @@ function Snake(id) {
     this.totalCaughtSnakeFood = 0;
     
     this.isAI = false;
-    this.AIParent = false;
 }
 
 Snake.prototype.spawnSnake = function(startX, startY) {

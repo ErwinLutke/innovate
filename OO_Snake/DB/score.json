@@ -1,20 +1,21 @@
 {
   "Player1": {
-    "id": "/client#LTXvt8EQRJ-3pnSHAAAe",
-    "Naam": "Jasper",
-    "Score": 353,
-    "Nummer": ""
+    "id": "/client#J7cuodt3VU18fAqhAAAI",
+    "Naam": "test",
+    "Score": 50,
+    "Nummer": "911",
+    "Date": "14/06/16 @ 15:39:17"
   },
   "Player2": {
-    "id": "/client#jOKRHe3jQAfNbDDaAAA6",
-    "Naam": "Nathan",
-    "Score": 312,
-    "Nummer": ""
+    "id": "/client#J7cuodt3VU18fAqhAAAI",
+    "Naam": "test",
+    "Score": 49,
+    "Nummer": "911"
   },
   "Player3": {
-    "id": "/client#jGqh05bTnq4vx15CAAAQ",
-    "Naam": "Ik ",
-    "Score": 14,
-    "Nummer": ""
+    "id": "/client#J7cuodt3VU18fAqhAAAI",
+    "Naam": "test",
+    "Score": 39,
+    "Nummer": "911"
   }
 }

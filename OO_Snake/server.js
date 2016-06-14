@@ -47,8 +47,8 @@ var players;                // array of connected players
 var waitingLine;            // stores players if no spot is free
 var maxPlayers;             // int - players allowed to play at the same time
 var topScores;              // stores scores of top Players
-var allScoresDB;            // Stores all scores of everyone playing
 
+var allScores = [];         // Stores all scores of everyone playing
 var tempPlayer = [];        // stores temporary players
 var OccupiedColors = [];    // sets color for the snake and players
 var playMusic = 1;          // Sets music on or off
@@ -57,18 +57,20 @@ var playMusic = 1;          // Sets music on or off
 ** GAME INITIALISATION
 **************************************************/
 function init() { 
-    scoresDB.ReadJson();                 // loads the scores
-    topScores = scoresDB.getScores();    // get scores and names of top 3 players
-    
-    server.listen(port, ip);            // start up the game server
+    scoresDB.ReadJson();                        // loads the top scores
+    topScores = scoresDB.getScores();           // get scores and names of top 3 players
+    allScores = scoresDB.readAllScores();       // loads all scores
+    saveAllPlayerScores();                      // saves all player scores
+
+    server.listen(port, ip);                    // start up the game server
     util.log('Started game server: listening on port:' + port + ' on ip: ' + ip );
     
-    players = [];                   // create empty array for storing the players
-    waitingLine = [];               // create empty array for storing the waiting players
-    maxPlayers = 8 ;                // number of allowed players
+    players = [];                               // create empty array for storing the players
+    waitingLine = [];                           // create empty array for storing the waiting players
+    maxPlayers = 10;                            // number of allowed players
     
-    nspDisplay.max_connections = 1;         // max number of display allowed
-    nspDisplay.current_connections = 0;     // current number of displays
+    nspDisplay.max_connections = 1;             // max number of display allowed
+    nspDisplay.current_connections = 0;         // current number of displays
     
     // setup the event handling
     setEventHandlersDisplay();
@@ -84,112 +86,160 @@ var setEventHandlersAdmin = function() {
     nspAdmin.on("connection", onSocketConnectionAdmin);
 };
 
+// Setup function for when admin client connects
+// @socket is the connection data to the client
 function onSocketConnectionAdmin (socket) {
-    // Current top scores will be sent to the adminpanel for display
-    scoresDB.sendScoresAdmin(socket);
     socket.on("disconnect", onAdminDisconnect);
     socket.on("checkPassword", onCheckPassword);
-    socket.on("saveAllScores", onSaveAllScores);
 }
 
+// Empty function
 function onAdminDisconnect() {
 }
 
-function onSaveAllScores(scores) {
-    scoresDB.saveScoresAdmin(scores);
-}
-
+// Checks entered password against server password for data access
+// @pass - this is the password that the client sends in string format
 function onCheckPassword(pass){
-    //
+
     if (pass === password){
+        // stores the phone numbers of the top 3
         var numbers = scoresDB.getNummers();
+        
+        // sends the top3 scores and phonenumbers, also sends the music option
         this.emit("passwordSucces", {scores: topScores, phone: numbers, music: playMusic});
-        this.on("music", onMusic);
+        // Current scores will be sent to the adminpanel for display
+        this.emit("setPlayerScores", allScores);
+        
+        //sets listener for the music toggle in admin panel
+        this.on("music", onMusic);   
     }
     else {
+        // if the passwords dont match
         this.emit("passwordFail");
     }
 }
 
+// Triggered when the music in admin panel is toggled
+// Will also stop ll other sounds
+// @toggle - booleaan, true - play, false = stop;
 function onMusic(toggle) {
     playMusic = toggle;
     nspDisplay.emit("music", toggle);
 }
+
 /**************************************************
 ** GAME EVENT HANDLERS - DISPLAY
 **************************************************/
+// Main function of the display listening event
 var setEventHandlersDisplay = function() {
         nspDisplay.on("connection", onSocketConnectionDisplay);
 };
 
+// Setup function when display has connected
 function onSocketConnectionDisplay(display) {
-  	//util.log("New display has connected: " + display.id);
-  	
   	// checks if max number displays is reached and disconnects client if its true
     if (nspDisplay.current_connections >= nspDisplay.max_connections) {
         display.emit('disconnect', 'Game in progress, cant display another');
         display.disconnect();
     } 
     else {
+        // if display is allowed to connect (not reached max)
         nspDisplay.current_connections++;
+        
+        // resets players and waitingline
         players = [];
         waitingLine = [];
-        display.on("recieveScore", onRecieveScore);
         
+        // setup listeners
+        display.on("recieveScore", onRecieveScore);         // player grabbed a point
       	display.on("spotOpen", onSpotOpen);  	            // Listen if Display has open spot because a player died
         display.on("disconnect", onDisplayDisconnect);  	// Listen for display disconnection
-     //   util.log("Game has connected: " + display.id);
     }
 }
 
+// Responsible for decrementing the total Displays connected
 function onDisplayDisconnect() {
-  //	util.log("Display has disconnected: " + this.id);
   	nspDisplay.current_connections--;
 }
 
+// Responsible for updating scores
+// @data holds the player id and points
 function onRecieveScore(data) {
+    var player = playerById(data.id);               // get the player position from players[] by id
+    var thePlayer = players[player.pos];            // store the player object
+    var playerScore = data.points;                  // store the player score
+    thePlayer.Score = playerScore;                  // save the player score  
+
+    // get the position of the player in the allScores array
+    var pos = playerByIdScores(thePlayer.id);
     
-    var player = playerById(data.id);
-    var playerScore = data.points;
-    
-    players[player.pos].Score = playerScore;
-    var player2admin = players[player.pos];
-    
+    // check if player exists in the allScores array
+	if(pos === false) { 
+        thePlayer.Date = getCurrentTime();
+	    // New player: store the player in the allScores array
+	    allScores.push(thePlayer);
+	}
+	else if(thePlayer.Score > allScores[pos].Score) {
+        thePlayer.Date = getCurrentTime();
+	    // Existing player: store the player score in all scores if its higher then his previous score
+	    allScores[pos].Score = thePlayer.Score;
+	} 
+	
+	    
+    // Update player scores, send to client and adminpanel
     io.nsps['/client'].sockets[data.id].emit("sendScore", playerScore);
-    nspAdmin.emit("updatePlayerScores", player2admin);
+    nspAdmin.emit("updatePlayerScores", thePlayer);
+    
 }
 
+// Responsible for pushing players from the waitingline to players[] and removing them from players[]
+// Resonspible for notifying if the player has a topscore
+// @removedPlayer holds the client id and the color for the snake
 function onSpotOpen(removedPlayer) {
+    //get index position from players[]
     var player = playerById(removedPlayer.id);
     
-    if (player === false) {
-      //  util.log("onSpotOpen: player not found");
-       // return
-    }
+    // if the player was playing
     if(player.play === 1) {
-        //remove color
+        //store the player
+        var thePlayer = players[player.pos];
+        
+        //remove color from OccupiedColors[] so that new snake can use it
         var indexToRemove = OccupiedColors.indexOf(removedPlayer.color);
         OccupiedColors.splice(indexToRemove, 1);
-      //  console.log("index to remove: " + indexToRemove + ", value: " + splice + ", color: " + removedPlayer.color);
-        
-        if(scoresDB.isInTop3(players[player.pos])) {
-            tempPlayer.push(players[player.pos]);
+       
+        // check if player has a score in the top 3
+        if(scoresDB.isInTop3(thePlayer)) {
+            // player has score, temporary store the player and send notification of highscore to client
+            // tempPlayer will be used to possibly update the highscores depending on the client
+            tempPlayer.push(thePlayer);
             io.nsps['/client'].sockets[removedPlayer.id].emit("topScore", topScores);
         } 
         else {
+            // player is not in the top 3, send notification to the client that the snake died
             io.nsps['/client'].sockets[removedPlayer.id].emit("snakeDead", topScores);
         }
+        // remove player from players[]
         players.splice(player.pos, 1);
     }
     
+    // Check if there are players in the waiting line
     if (waitingLine.length > 0) {
+        // store the first waiting player and push them in players[]
         var newPlayer = waitingLine.shift();
         players.push(newPlayer);
-        var sColor = giveColor();
-        nspDisplay.emit("newPlayer", { player: newPlayer, color: sColor });
         
+        // Determine color for the snake
+        var sColor = giveColor();
+        
+        // send player and color towards the display to enter the game.
+        // send notification to client to enter the game
+        nspDisplay.emit("newPlayer", { player: newPlayer, color: sColor });
         io.nsps['/client'].sockets[newPlayer.id].emit("playGame", sColor);
+        
+        // check if there are still more players in the waitingline
         if (waitingLine.length > 0) {
+            // update position of every client in the waitingline. Poisition is -1;
             for(var i = 0; i < waitingLine.length; i++) {
                 io.nsps['/client'].sockets[waitingLine[i].id].emit("waitingLine" , i+1);
             }
@@ -197,116 +247,109 @@ function onSpotOpen(removedPlayer) {
     }
 }
 
-/*function addAI() {
-    if(players.length <= 1) {
-        nspDisplay.emit("AddAI");
-        AIs++;
-    }
-}*/
-
-
 /**************************************************
 ** GAME EVENT HANDLERS - CLIENT
 **************************************************/
+// Listens for new client connections
 var setEventHandlersClient = function() {
     nspClient.on("connection", onSocketConnectionClient);
-    //addAI();
 };
 
-
+// Triggers when a new client connects
+// @client - stores the socket connection from the client
 function onSocketConnectionClient(client) {
-  //	util.log("New Client has connected: " + client.id);
-    // util.log("playerArray check:  -- " + players[0].id);
-    client.on("setPlayerName", onSetPlayerName);
+    client.on("setPlayerName", onSetPlayerName);    // Listen for client if player nickname has been set
   	client.on("disconnect", onClientDisconnect);    // Listen for client disconnected
     client.on("movePlayer", onMovePlayer);	        // Listen for move player message
-    
-    client.on("winPrice", onWinPrice);	            // store score of player
+    client.on("winPrice", onWinPrice);	            // Listen if client enters phonenumber
 }
 
+// Responsible for updating the top 3 highscores
+// @number - the phonenumber of the player with a highscore
 function onWinPrice(number) {
+    // search index position of player in tempPlayers[]
     var player = playerById(this.id);
     
+    // if player is in TempPlayers
     if(player.play === 2){
+        // Set the number of the player
         tempPlayer[player.pos].Nummer = number;
+        // update the highscores
         scoresDB.updateScore(tempPlayer[player.pos]);
+        // redefine the topscores
         topScores = scoresDB.getScores();
+        // send message to client to enter gameOver screen with new top scores
         io.nsps['/client'].sockets[this.id].emit("snakeDead", topScores);
-      //  util.log("score saved, player:" + player.Naam + "\n\rscore: " + player.Score);
+        // remove player from tempPlayer[]
         tempPlayer.splice(player.pos, 1);
     }
 }
 
+//Responsible for storing the nickname of the client
+// @playerName - holds the nickname entered by the client
 function onSetPlayerName(playerName) {
-    //util.log("new player: " + playerName);
-    
-    // Create a new player
+    // Create a new player, set Score and Nummber to nothing
     var newPlayer = {id: this.id, Naam: playerName, Score: 0, Nummer: ""};
-    //util.log(newPlayer.Naam);
+   
     // Place player in game or waitingLine 
     if(players.length < maxPlayers) {
+        // if maxPlayers not reached, determine snake color and push to players[]
         var sColor = giveColor();
-        players.push(newPlayer);                    // Add new player to the players array
-        nspDisplay.emit("newPlayer", { player: newPlayer, color: sColor });    // Broadcast new player to gameDisplay
-        this.emit("playGame", sColor);
+        players.push(newPlayer);  
         
+        // Broadcast new player to gameDisplay and send play message to client
+        nspDisplay.emit("newPlayer", { player: newPlayer, color: sColor });
+        this.emit("playGame", sColor);
     }
     else {
+        // if maxplayers is reached, player will be send to the waiting line
         waitingLine.push(newPlayer);                // Add new player to the waiting array
         var waitingPos = waitingLine.length;        // get the waiting position
-     //   util.log("in wait");
-        // send waiting position to this player
-        //nspClient.sockets.connected[newPlayer.id]
-        this.emit("waitingLine", waitingPos);
+        this.emit("waitingLine", waitingPos);       // send waiting position to this player
     }
 }
 
-// Socket client has disconnected
+// Responsible for managing the disconnection of clients
+// Manages the players[], tempPlayers[] and waitingLinep[] for proper handling
 function onClientDisconnect() {
-  	//util.log("Player has disconnected: " + this.id);
-  
-    // find index position in array of the player by id
+     // find index position in array of the player by id
   	var removePlayer = playerById(this.id);
   	
   	// Player not found
   	if (removePlayer === false) {
-     //   util.log("onClientDisconnect: Player not found: " + this.id);
         return;
   	}
   
-  	// Remove player from arrays by index position - QUICKFIX
+  	// Remove player from arrays by index position
     if(removePlayer.play === 1) {
-        players.splice(removePlayer.pos, 1);
+        // of player is playing the game, remove from display and players[]
         nspDisplay.emit("removePlayer", {id: this.id});
+        players.splice(removePlayer.pos, 1);
     }
     else if (removePlayer.play === 0) {
+        // if player is in the waitingline, remove player
         waitingLine.splice(removePlayer.pos, 1);
     }
     else {
+        // if players is in the highscore submission screen, remove player
         tempPlayer.splice(removePlayer, 1);
     }
-  	
-  	//addAI
-    //addAI();
-  	// Broadcast removed player to connected socket clients
-  	// only if in player array, not finished
 }
 
-// Player has moved
+// Responsible for moving the player
+// @dir - holds the direction of the players (up, down, left, right)
 function onMovePlayer(dir) {
-	// Find player in array
-
-    //util.log("player movement " + dir );
+	// Find player in players[]
 	var movePlayer = playerById(this.id);
 	
 	// Player not found
 	if (movePlayer === false) {
-	//	util.log("onMovePlayer: Player not found: "+ this.id);
 		return;
 	}
-	
+
+    // If player is in players[]
 	if(movePlayer.play === 1) {
-    	// Broadcast updated position to connected socket clients
+    	// Broadcast updated position to connected display
     	nspDisplay.emit("movePlayerSnake", {id: players[movePlayer.pos].id, direction: dir});
 	}
 }
@@ -315,7 +358,9 @@ function onMovePlayer(dir) {
 /**************************************************
 ** HELPER FUNCTIONS
 **************************************************/
-// Find player by ID: Checks players array and waitinglne array and tempPlayer array
+// Find player by ID in players[], waitingLine[], tempPlayers[]
+// returns position and what array the player is found in
+// if none is found, return false
 function playerById(id) {
   	for (var i = 0; i < players.length; i++) {
   		  if (players[i].id == id) {
@@ -337,41 +382,43 @@ function playerById(id) {
   	return false;
 }
 
-
+// Will return a random number between 0 and 9
 function giveColor() {
     var color = Math.floor((Math.random() * 10));
-    //var timeOutCount = 0;
-    var IfstatementUsed = "None";
-    //give random color if not more than 6 players in the game, else give the next color
-    if(OccupiedColors.length < 6) {
-        while(OccupiedColors.indexOf(color) != -1) {// && timeOutCount < 25
-            color = Math.floor((Math.random() * 10));
-            //timeOutCount++;
-            IfstatementUsed = "Random";
-        }
-    } else {
-        color = -1;
-        do {
-            color++;
-            IfstatementUsed = "Fixed";
-        }
-        while(OccupiedColors.indexOf(color) != -1 && color < 9);
+    while(OccupiedColors.indexOf(color) != -1) {
+        color = Math.floor((Math.random() * 10));
     }
-    
-    // console.log(IfstatementUsed + ", " + color);
-    
     OccupiedColors.push(color);
-    // OccupiedColors.forEach(function(value, index) {
-    //     console.log("Index: " + index + ", Value: " + value);
-    // });
-    
-    
     return color;
 }
 
+// Resposible for returning the index position of the player in allScores[]
+function playerByIdScores(id) {
+  	for (var i = 0; i < allScores.length; i++) {
+  		  if (allScores[i].id == id) {
+  			    return i;
+  		  }
+  	}
+  	return false;
+}
 
+// saves scores every 30 seconds
+function saveAllPlayerScores() {
+    scoresDB.saveAllScores(allScores);
+	setTimeout(saveAllPlayerScores, 30000);
+}
 
-
+//returns current time
+function getCurrentTime() {
+    var currentdate = new Date(); 
+    var datetime =    ("0" + currentdate.getDate()).slice(-2) + "/"
+                    + ("0" + (currentdate.getMonth()+1)).slice(-2)  + "/" 
+                    + ("0" + currentdate.getFullYear()).slice(-2) + " @ "  
+                    + ("0" + currentdate.getHours()).slice(-2) + ":"  
+                    + ("0" + currentdate.getMinutes()).slice(-2) + ":" 
+                    + ("0" + currentdate.getSeconds()).slice(-2);
+    return datetime;
+}
 
 /**************************************************
 ** START SERVER

@@ -2,49 +2,50 @@
 function Game(socket) {
     this.socket = socket || null;           // holds object for communication with the server
     
+    // setup fps
+    this.last = null;
+    this.interval = 1000 / this.speed;
+    this.delta;
+    this.speed = 15;                        // set global snake speed
     
-    this.AIs = [];
-    this.AIsToRemove = [];
+    this.roboSchnakeID = 0;                 // stores ids of AI snakes
+    this.AIs = [];                          // holds all AI snakes
+    this.maxAI = 1;                         // sets max AIs allow
     
     this.snakes = [];                       // Will hold all the snakes that are in the game
     this.snakesToRemove = [];               // Holds all the snakes that have had a collision, they will be prepped for removal
     
-    this.snakeColors = []; 
-    this.snakeColors[0] = 0;                // Stores all colors of the snakes. Used to give a unique color to each snake
-    
+    this.snakeColors = [];                  // Stores all colors of the snakes. 
+    this.snakeColors[0] = 0;                // Used to give a unique color to each snake
+                                            
     this.tempSnakes = [];                   /* This holds all the snakes that have been removed and thus are no longer "playable". 
                                                They are now food and the segments will be slowly removed from the field */
     
     this.collisions = [];                   // Holds all the colission object for the walls and AI snakes
+    this.newFood = [];                      // holds the food objects
     
-    this.newFood = []; // holds the food objects
-    
-    // this.FPS_LIMIT = 1000/20;
-
-    
+    // setup grid size;
     this.wGridth = 98;
     this.hGridth = 50;
     
     this.sizeX =  this.wGridth;//80 ///2 | 0
     this.sizeY =  this.hGridth;//50 ///2 | 0
     
-    
     this.cellSize = 15;//16
     this.cellSpacing = 1;
-    this.clearColor = "#4d4d4d"; //#838383
-    this.solidsColor = '#EFEFEF';
     
     
-    // hier moet nog een juiste callback voor worden gemaakt,
-    // asset loader is nog .... ruk
+    // Moet nog juister asset loader worden gemaakt
     if(this.loadAssets()) {
         this.setup();
     }
     
-    this.delta;
     this.renderer = new Renderer(this);     // setup the render object to draw onscreen
     
+    
+    // SOUNDS
     this.soundToggle = true;
+    
     this.music = new AudioFX('../Display/Sounds/snake_music', {
                             formats: ['mp3'],
                             volume:   0.5,
@@ -56,24 +57,21 @@ function Game(socket) {
                             volume:   0.5,
                             loop:     false,
                             autoplay: false });
+                            
     this.eat = new AudioFX('../Display/Sounds/snake_eat', {
                             formats: ['wav'],
                             volume:   0.5,
                             loop:     false,
                             autoplay: false });
     
+    // loads img for food
     this.rasp = new Image();
     this.rasp.src = "../Display/img/rasp2.png";
     
+    // setup the collision and add food;
     this.setupCollisions();
     this.addFood();
     
-    // setup fps
-    this.last = null;
-    this.speed = 15;  // FPS
-    this.interval = 1000 / this.speed;
-    //sound stuf TEST
-    // this.actx = new AudioContext();
 
 }
 
@@ -135,10 +133,7 @@ Game.prototype.setupCollisions = function() {
     this.collisions.push(wallBottomLeft);
     this.collisions.push(wallBottomRight);
     
-    // Food.randPosition(collisions);
-    
     this.renderer.collisionDraw(this.collisions);
-    
 };
 
 Game.prototype.loadAssets = function() {
@@ -157,10 +152,10 @@ Game.prototype.loop = function() {
 
 
     // if(this.delta > this.interval) { 
-    //     this.update();   
+    //     this.update(this.delta);   
     //     this.last = this.now - (this.delta % this.interval);  
     // } 
-    // this.draw(this.delta);  
+    // this.draw();  
     
     // requestAnimationFrame(this.loop.bind(this));
     
@@ -171,41 +166,42 @@ Game.prototype.loop = function() {
 
     setTimeout(function () {
         Game.prototype.loop.call();
-    }, 1000 / 20);
+    }, 1000 / game.speed);
 };
 
 
 // The update function is responsible for all the game logic, moving the snake, checking for collision and adding food
 Game.prototype.update = function() {
+
     // Call function to remove the snakes that have died
-  
+    this.removeSnake(this.snakesToRemove);
     
     //check if an AI should be added
     this.addAI();
     
+    // store length of snakes[] and tempSnakes[] for performance
     var sl = this.snakes.length;
     var tsl = this.tempSnakes.length;
     
+    // move all player snakes
     for (var m = 0; m < sl; m++) {
         this.snakes[m].moveSnake();
     }
     
+    // move all AI snakes
     for (var a = 0; a < this.AIs.length; a++) {
         this.AIs[a].moveAI();
     }
     
+    // collision checks with all snakes
     for(var i = 0; i < sl; i++) {
         var snake = this.snakes[i],
-        shx = snake.segments[0].x, //ERROR UNDEFINED X
+        shx = snake.segments[0].x,
         shy = snake.segments[0].y;
             
         for (var c = 0; c < this.collisions.length; c++) {
             if(this.collisions[c].CollisionWith(snake, null)) {
-                 if(snake.isAI == true) {
-                    this.AIsToRemove.push(snake.AIParent);
-                } else {
-                    this.snakesToRemove.push(snake);
-                }
+                this.snakesToRemove.push(snake);
                 if(this.soundToggle) {
                     this.explosion.audio.currentTime = 0;
                     this.explosion.play();
@@ -220,11 +216,7 @@ Game.prototype.update = function() {
             if(os.segments.length > 1 && snake.segments.length > 1) {
                 for(var s = 1; s < os.segments.length; s++) {
                     if(shx == os.segments[s].x && shy == os.segments[s].y ) {
-                        if(snake.isAI == true) {
-                            this.AIsToRemove.push(snake.AIParent);
-                        } else {
-                            this.snakesToRemove.push(snake);
-                        }
+                        this.snakesToRemove.push(snake);
                         if(this.soundToggle) {
                             this.explosion.audio.currentTime = 0;
                             this.explosion.play();
@@ -235,7 +227,7 @@ Game.prototype.update = function() {
         }
   
         //collision with Fruit
-        if (this.newFood.length >0){
+        if (this.newFood.length > 0){
             for (var a = 0; a < this.newFood.length; a++) {
                 if(shx == this.newFood[a].position.x && shy == this.newFood[a].position.y) {
                     snake.totalCaughtFood++;
@@ -247,7 +239,7 @@ Game.prototype.update = function() {
                         this.eat.audio.currentTime = 0;
                         this.eat.play();
                     }
-                    try { //NOTE: is deze try catch nodig erwin?
+                    try { 
                         // send the score
                         if(!snake.isAI){
                     		this.socket.emit("recieveScore", {id: snake.clientID, points: snake.length});
@@ -294,26 +286,19 @@ Game.prototype.update = function() {
         
         
     }
-    
-      this.removeAI(this.AIsToRemove);
-      this.removeSnake(this.snakesToRemove);
 };  
 
 //draws every snake and raspberry
 Game.prototype.draw = function(delta) {
 
-    
+    // draws dead snakes with some transparency
     this.renderer.ctx_fg.globalAlpha = 0.7;
     this.renderer.drawSnakes(this.tempSnakes);
     this.renderer.ctx_fg.globalAlpha = 1;
     
     this.renderer.drawSnakes(this.snakes);
     
-    // if(this.snakes.length > 0){
-    //     this.renderer.drawSnakesSmooth(this.snakes, delta);
-    // }
-    
-     for (var i = 0; i < this.newFood.length; i++) {
+    for (var i = 0; i < this.newFood.length; i++) {
          this.renderer.ctx_fg.drawImage(
             this.rasp, 
             this.newFood[i].position.x * ( this.cellSize + 1) -2,
@@ -333,6 +318,7 @@ Game.prototype.addFood = function() {
         this.newFood.push(new Food());
     }
 };
+
 Game.prototype.addPlayer = function(data) {
     this.snakes.push(new Snake(data.player.id));
     var snake = this.snakes[this.snakes.length - 1];
@@ -342,21 +328,16 @@ Game.prototype.addPlayer = function(data) {
 
 //checks if an AI should be added or removed based on the amount of players
 Game.prototype.addAI = function() {
-    if(this.snakes.length <= 5 && this.AIs.length < 5) {
-        try {
-            var AISnake = new Snake();
-            AISnake.isAI = true;
-            var AI = new RoboSchnake(AISnake, this);
-            this.snakes.push(AI.snake);
-            this.AIs.push(AI);
-            AI.snake.isAI = true;
-            AI.snake.AIParent = AI;
-     
-        } catch(e) {
-        }
-    }
-    if(this.snakes.length > 1) {
-        this.removeAI();
+    if(this.snakes.length <= this.maxAI && this.AIs.length < this.maxAI) {
+        this.roboSchnakeID++;
+        var AISnake = new Snake(this.roboSchnakeID);
+        AISnake.isAI = true;
+        AISnake.length = 1;
+        AISnake.isAI = true;
+        var AI = new RoboSchnake(AISnake, this);
+        AI.id = this.roboSchnakeID;
+        this.snakes.push(AISnake);
+        this.AIs.push(AI);
     }
 };
 
@@ -369,12 +350,17 @@ Game.prototype.removeSnake = function(str) {
     if(str.length > 0) {
         for (var i = 0; i < str.length; i++) {
             var pos = this.snakeByClientId(str[i].clientID);
+            
             if(pos !== false) {
                 var rsnake = this.snakes[pos];
                 var sid = rsnake.clientID;
                 rsnake.dead = true;
                 this.tempSnakes.push(rsnake);
                 this.snakes.splice(pos, 1);
+                if(rsnake.isAI) {
+                    var rpos = this.roboSchnakeById(sid);
+                    if(rpos !== false) this.AIs.splice(rpos, 1);//splice(i, 1)
+                }
                 try {
                     this.socket.emit("spotOpen", {id: sid, color: rsnake.color});
                 } catch (e) {}
@@ -398,35 +384,7 @@ Game.prototype.removeSnake = function(str) {
             }
         }
     }
-    /*
-    if (this.tempSnakes.length > 0) {
-        for (var i = 0; i < this.tempSnakes.length; i++) {
-            var tsnake = this.tempSnakes[i];
-            if (tsnake.segments.length > 1) {
-                 //if (tsnake.deathTime == 0) {
-                 //this.tempSnakes[i].prevT = 
-                    tsnake.segments.pop();
-                 /*} else {
-                    tsnake.deathTime--;
-                 }
-                 
-            else {
-                this.tempSnakes.splice(i, 1);
-            }
-        }
-    }
-    */
 };
-//functie om de AI te verwijderen
-Game.prototype.removeAI = function(AIstoRemove) {
-    for(var i = 0; i < this.AIsToRemove.length; i++) {
-        this.snakesToRemove.push(this.AIsToRemove[i].snake);
-        this.AIs.splice(i, 1);//splice(i, 1)
-    }
-    
-    this.AIsToRemove = [];
-};
-
 
 /****************************************************************************************************
 ** HELPER FUNCTIONS
@@ -434,10 +392,19 @@ Game.prototype.removeAI = function(AIstoRemove) {
 // Gives back the snake position in the snakes array based on the clientID
 Game.prototype.snakeByClientId = function(clientSnakeId) {
     for (var i = 0; i < this.snakes.length; i++) {
-        if (this.snakes[i].clientID == clientSnakeId) {
+        if (this.snakes[i].clientID === clientSnakeId) {
             return i;
         }
     }
     return false;
 };
 
+// Give back the roboSchnake position in the AIs array based on clientID
+Game.prototype.roboSchnakeById = function(roboID) {
+    for (var i = 0; i < this.AIs.length; i++) {
+        if (this.AIs[i].id == roboID) {
+            return i;
+        }
+    }
+    return false;
+};

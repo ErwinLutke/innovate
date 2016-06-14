@@ -16,12 +16,9 @@ var setEventHandlers = function() {
 	socket.on("disconnect", onSocketDisconnect);	// Socket disconnection
 	socket.on("playGame", onPlayGame);				// recieve GO to play the game
 	socket.on("waitingLine", onWaitingLine);		// recieve message to be in waiting line
-	socket.on("snakeDead", onSnakeDead);					// recieve message you dead
-	
-	socket.on("topScore", onTopScore);				// recieve message you dead WITH highscore!
-	
-	//scores
-	socket.on("sendScore", onSendScore); // get the current client score from server
+	socket.on("snakeDead", onSnakeDead);			// recieve message that snake died
+	socket.on("topScore", onTopScore);				// recieve message snake died, WITH highscore!
+	socket.on("sendScore", onSendScore);			// get client score from server
 };
 
 /**************************************************
@@ -37,27 +34,33 @@ function onSocketDisconnect() {
 	console.log("Disconnected from socket server");
 }
 
+// player may play
 function onPlayGame(color) {
+	// shows the controls, hide the rest
+	// passes the color of the snake for display
 	showHide(color);
 }
 
+// is in waiting line
 function onWaitingLine(pos) {
+	// shows the waitingline with the position
 	waitingLine(pos);
 }
 
+// recieves scores from server when fruit is eaten
 function onSendScore(score) {
-	console.log("onSendScore function");
 	updateMyScore(score);
 }
 
-function onTopScore() {
-	inTopScore();
-	console.log("onTopScores function");
+// if highscore is reached
+function onTopScore(topscores) {
+	// show topscore screen for phone submission
+	inTopScore(topscores);
 }
 
-function onSnakeDead(scores) { // death - view highscore, own score and replay button ( remember name)
+function onSnakeDead(scores) { 
+	// shows gameOver screen and updates top scores
 	showTopScores(scores);
-	// console.log(typeof scores);
 	gameOver();
 }
 
@@ -65,18 +68,17 @@ function onSnakeDead(scores) { // death - view highscore, own score and replay b
 ** EVENT HANDLERS - SENDERS
 **************************************************/
 function movePlayer(dir) {
+	//sends position pressed to server
 	socket.emit("movePlayer", dir);
 }
 
 function setPlayerName(name) {
-	//misschien nog wat checks toevoegen?
-	console.log("setplayername functie called");
+	// sends entered name to server
 	socket.emit("setPlayerName", name);
 }
 
 function setPhoneNumber(number) {
-	//misschien nog wat checks toevoegen?
-	console.log("winPrice functie called");
+	// sends entered phonenumber to server
 	socket.emit("winPrice", number);
 }
 

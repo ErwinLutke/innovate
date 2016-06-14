@@ -183,10 +183,9 @@
             }
             
             function updateScoresAll(scores){
-                console.log("update scoreAll functie called, schrijfen maar");
                 $(".scoresAllPlayers").text("");
                 for (var i = scores.length - 1; i >= 0; i--) {
-                     $(".scoresAllPlayers").append(scores[i].Naam + " - " + scores[i].Score + " <br>");
+                     $(".scoresAllPlayers").append(scores[i].Naam + " - " + scores[i].Score + " - " + scores[i].Date + "<br>");
                 }
             }
             
